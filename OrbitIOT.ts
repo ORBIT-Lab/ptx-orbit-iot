@@ -1,7 +1,7 @@
 namespace Orbit_IoT {
 
-    const wifi_ssid :string  = "OrbitWifi"
-    const wifi_pw :string  = "Orbit1234"
+    const wifi_ssid :string  = "OrbitLab"
+    const wifi_pw :string  = "orbitlab"
 
     const endpoint :string = "34.66.72.29"
     const port :string = "5000"

@@ -134,7 +134,6 @@ namespace Orbit_IoT {
 
             sendAT("AT+CIPSEND=" + (toSendStr.length + 2), 100)
             sendAT(toSendStr, 100) // upload data
-            waitForResponse("SEND OK");
         }
     }
 

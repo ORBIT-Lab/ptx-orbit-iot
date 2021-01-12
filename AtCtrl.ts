@@ -86,6 +86,8 @@ namespace atcontrol {
                 }
 
                 recevice_text += serial.readString();
+                if(recevice_text.length > 0)
+                    led.plot(0,0);
                 let lines = recevice_text.split(at_line_delimiter);
                 let line: string | undefined = undefined;
                 if (lines.length > 1) {

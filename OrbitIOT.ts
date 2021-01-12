@@ -47,7 +47,7 @@ namespace Orbit_IoT {
             
             while (done == false)
                 basic.pause(20);
-
+            basic.pause(1000);
         }
         return cloud_connected;
     }
@@ -97,8 +97,15 @@ namespace Orbit_IoT {
             toSendStr += "}"
 
             function ignore_callback(){};
-            atcontrol.sendAT("AT+CIPSEND=" + (toSendStr.length + 2), "Recv", "ERROR", ignore_callback, ignore_callback);
-            atcontrol.sendAT(toSendStr,"SEND OK", "ERROR",ignore_callback, ignore_callback);
+            led.toggle(0,4);
+            atcontrol.sendAT("AT+CIPSEND="+(toSendStr.length +2).toString(), "", "ERROR", function()
+            {
+                led.toggle(3,4);
+                basic.pause(500);
+            }, ignore_callback);
+            atcontrol.sendAT(toSendStr,"SEND OK", "ERROR",function (){
+                led.toggle(4,4);
+            }, ignore_callback);
         }
     }
 

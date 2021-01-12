@@ -50,12 +50,16 @@ namespace atcontrol {
     }
 
     export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
+        cmd_queue.push(new AtCmd(command+at_line_delimiter, ok_match, error_match, cmpCallback, errorCallback));
+    }
+
+    export function sendData(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
         cmd_queue.push(new AtCmd(command, ok_match, error_match, cmpCallback, errorCallback));
     }
 
 
     function setupESP8266() {
-        sendAT("AT+RESTORE", "OK", "ERROR",function(){basic.pause(1000);}, empty_callback); // restore to factory settings
+        sendAT("AT+RESTORE", "ready", "ERROR",empty_callback, empty_callback); // restore to factory settings
         sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode
     }
 
@@ -79,35 +83,35 @@ namespace atcontrol {
                     current_cmd = cmd_queue.pop();
                     if (current_cmd !== undefined)
                     {
-                        serial.writeString(current_cmd.cmd + at_line_delimiter);
+                        led.toggle(0,0);
+                        serial.writeString(current_cmd.cmd);
                         time_at_depature = input.runningTime();
                     }
                 }
 
-                let line: string | undefined = undefined;
                 recevice_text += serial.readString();
-                let line_end_index = recevice_text.indexOf(at_line_delimiter);
-                if (line_end_index !== -1) {
-                    let line_count = line_end_index+at_line_delimiter.length;
-                    line = recevice_text.substr(0,line_count);
-                    if(recevice_text.length > line_count)
-                        recevice_text = recevice_text.substr(line_count, recevice_text.length-line_count);
-                    else
-                        recevice_text = "";
-                }
-                    
+                
+                let handled : boolean = false;
                 if (current_cmd !== undefined) {
-                    if ((line !== undefined && line.includes(current_cmd.ok_match))) {
+                    if ((recevice_text.includes(current_cmd.ok_match) || current_cmd.ok_match === "")) {
                         current_cmd.onCmp();
+                        handled = true;
                         current_cmd = undefined;
                     }
-                    else if ((line !== undefined && line.includes(current_cmd.error_match)) ||
+                    else if (recevice_text.includes(current_cmd.error_match) ||
                         (input.runningTime() - time_at_depature) > timeout) {
                         current_cmd.onError();
+                        handled = true;
                         current_cmd = undefined;
                     }
                 }
+                else
+                    handled = true;
                 
+                if(handled)
+                    recevice_text = "";
+
+
                 basic.pause(20);
             }
         });

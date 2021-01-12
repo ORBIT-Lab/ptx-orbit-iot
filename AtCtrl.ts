@@ -89,6 +89,7 @@ namespace atcontrol {
                 let lines = recevice_text.split(at_line_delimiter);
                 let line: string | undefined = undefined;
                 if (lines.length > 1) {
+                    led.plot(0,1)
                     line = lines[0]; 
                     recevice_text = lines[1];
                 }

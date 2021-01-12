@@ -44,11 +44,13 @@ namespace atcontrol {
             while(true)
             {
                 if (current_cmd === undefined) {
+                    led.plot(1,0);
+                    basic.pause(10000);
                     current_cmd = cmd_queue.pop();
+                    led.plot(2,0);
+                    basic.pause(10000);
                     if (current_cmd !== undefined)
                     {
-                        led.plot(1,0);
-                        basic.pause(10000);
                         serial.writeString(current_cmd.cmd + at_line_delimiter);
                         time_at_depature = input.runningTime();
                     }

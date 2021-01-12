@@ -55,13 +55,8 @@ namespace atcontrol {
 
 
     function setupESP8266() {
-        sendAT("AT+RESTORE", "OK", "ERROR",
-        function () {
-            sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode
-        },
-        function () {
-            
-        }); // restore to factory settings
+        sendAT("AT+RESTORE", "OK", "ERROR",empty_callback, empty_callback); // restore to factory settings
+        sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode
     }
 
     function empty_callback()

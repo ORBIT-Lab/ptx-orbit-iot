@@ -51,11 +51,11 @@ namespace Orbit_IoT {
         {
             atcontrol.start();
             //setupESP8266(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200)
-            /*if(connectWifi(wifi_ssid, wifi_pw))
+            if(connectWifi(wifi_ssid, wifi_pw))
             {
                 //connectOrbitCloud()
             }
-            */
+            
         }
     }
 

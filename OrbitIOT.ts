@@ -17,7 +17,7 @@ namespace Orbit_IoT {
             wifi_connected = true;
             done = true;
             },
-            function () {
+            function () {   
             wifi_connected = false;
             done = true;
             }

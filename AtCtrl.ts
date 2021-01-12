@@ -30,7 +30,7 @@ namespace atcontrol {
         onCmp: () => void;
 
         constructor(cmd: string,ok_match: string, error_match: string,
-            onError: () => void, onCmp: () => void) {
+            onCmp: () => void, onError: () => void) {
             this.cmd = cmd;
             this.ok_match = ok_match;
             this.error_match = error_match;

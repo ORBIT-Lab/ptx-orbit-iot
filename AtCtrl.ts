@@ -66,7 +66,7 @@ namespace atcontrol {
 
     function atCmdTask()
     {
-        //serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
+        serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
         control.inBackground(function ()
         {
             let current_cmd: AtCmd | undefined = undefined; 

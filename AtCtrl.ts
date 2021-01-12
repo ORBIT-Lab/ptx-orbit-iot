@@ -29,10 +29,13 @@ namespace atcontrol {
         onError: () => void;
         onCmp: () => void;
 
-        constructor(cmd: string,ok_match: string, error_match: string) {
+        constructor(cmd: string,ok_match: string, error_match: string,
+            onError: () => void, onCmp: () => void) {
             this.cmd = cmd;
             this.ok_match = ok_match;
             this.error_match = error_match;
+            this.onCmp = onCmp; 
+            this.onError = onError;
         }
     }
     
@@ -47,7 +50,7 @@ namespace atcontrol {
     }
 
     export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
-        cmd_queue.push(new AtCmd(command, ok_match, error_match));
+        cmd_queue.push(new AtCmd(command, ok_match, error_match, cmpCallback, errorCallback));
     }
 
 

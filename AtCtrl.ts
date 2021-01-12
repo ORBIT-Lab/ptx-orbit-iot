@@ -5,7 +5,7 @@ namespace atcontrol {
     export function start()
     {
         atCmdTask();
-        setupESP8266()
+        //setupESP8266()
     }
 
     export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {

@@ -16,6 +16,7 @@ namespace Orbit_IoT {
         atcontrol.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "WIFI GOT IP", "ERROR", function () {
             wifi_connected = true;
             done = true;
+
             },
             function () {   
             wifi_connected = false;
@@ -26,6 +27,8 @@ namespace Orbit_IoT {
         while (done == false)
             basic.pause(20);
 
+        basic.pause(1000);
+
         return wifi_connected
     }
 
@@ -35,7 +38,7 @@ namespace Orbit_IoT {
         {
             let done: boolean = false; 
             let cmd = "AT+CIPSTART=\"TCP\",\"" + endpoint + "\","+ port
-            atcontrol.sendAT(cmd, "OK", "ERROR", function()
+            atcontrol.sendAT(cmd, "CONNECT", "ERROR", function()
             {
                 cloud_connected = true; 
                 done = true;

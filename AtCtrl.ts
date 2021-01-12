@@ -1,6 +1,44 @@
 namespace atcontrol {
+    
+    class Queue<T> {
+        _store: T[] = [];
+        count : number = 0; 
+        constructor()
+        {}
+
+        push(val: T) {
+          this._store.push(val);
+          this.count++; 
+        }
+        pop(): T | undefined {
+            if(this.count > 0)
+            {
+                this.count--;
+                return this._store.shift();
+            }
+            return undefined;
+        }
+    }
+
+    class AtCmd
+    {
+        cmd: string;
+        ok_match: string;
+        error_match: string;
+
+        onError: () => void;
+        onCmp: () => void;
+
+        constructor(cmd: string,ok_match: string, error_match: string) {
+            this.cmd = cmd;
+            this.ok_match = ok_match;
+            this.error_match = error_match;
+        }
+    }
+    
+    
     const at_line_delimiter : string = "\u000D\u000A"
-    let cmd_queue : Queue<AtCmd>
+    let cmd_queue : Queue<AtCmd> = new Queue<AtCmd>();
 
     export function start()
     {
@@ -87,41 +125,7 @@ namespace atcontrol {
         });
     }
 
-    class Queue<T> {
-        _store: T[] = [];
-        count : number = 0; 
-        constructor()
-        {}
-
-        push(val: T) {
-          this._store.push(val);
-          this.count++; 
-        }
-        pop(): T | undefined {
-            if(this.count > 0)
-            {
-                this.count--;
-                return this._store.shift();
-            }
-            return undefined;
-        }
-    }
-
-    class AtCmd
-    {
-        cmd: string;
-        ok_match: string;
-        error_match: string;
-
-        onError: () => void;
-        onCmp: () => void;
-
-        constructor(cmd: string,ok_match: string, error_match: string) {
-            this.cmd = cmd;
-            this.ok_match = ok_match;
-            this.error_match = error_match;
-        }
-    }
+    
 
 
 }

@@ -80,21 +80,22 @@ namespace atcontrol {
                     current_cmd = cmd_queue.pop();
                     if (current_cmd !== undefined)
                     {
+                        led.plot(0,0);
                         serial.writeString(current_cmd.cmd + at_line_delimiter);
                         time_at_depature = input.runningTime();
                     }
                 }
 
+                let line: string | undefined = undefined;
                 recevice_text += serial.readString();
                 if(recevice_text.length > 0)
-                    led.plot(0,0);
-                let lines = recevice_text.split(at_line_delimiter);
-                let line: string | undefined = undefined;
+                    led.plot(1,0);
+                /*let lines = recevice_text.split(at_line_delimiter);
                 if (lines.length > 1) {
                     led.plot(0,1)
                     line = lines[0]; 
                     recevice_text = lines[1];
-                }
+                }*/
                     
                 if (current_cmd !== undefined) {
                     if ((line !== undefined && line.includes(current_cmd.ok_match))) {

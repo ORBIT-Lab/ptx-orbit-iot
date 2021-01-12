@@ -61,7 +61,6 @@ namespace atcontrol {
 
     function empty_callback()
     {
-    
     }
 
     function atCmdTask()
@@ -80,7 +79,6 @@ namespace atcontrol {
                     current_cmd = cmd_queue.pop();
                     if (current_cmd !== undefined)
                     {
-                        led.plot(0,0);
                         serial.writeString(current_cmd.cmd + at_line_delimiter);
                         time_at_depature = input.runningTime();
                     }
@@ -88,11 +86,14 @@ namespace atcontrol {
 
                 let line: string | undefined = undefined;
                 recevice_text += serial.readString();
-                let lines = recevice_text.split(at_line_delimiter);
-                if (lines.length > 1) {
-                    led.plot(0,1)
-                    line = lines[0]; 
-                    recevice_text = lines[1];
+                let line_end_index = recevice_text.indexOf(at_line_delimiter);
+                if (line_end_index !== -1) {
+                    let line_count = line_end_index+at_line_delimiter.length;
+                    line = recevice_text.substr(0,line_count);
+                    if(recevice_text.length > line_count)
+                        recevice_text = recevice_text.substr(line_count, recevice_text.length-line_count);
+                    else
+                        recevice_text = "";
                 }
                     
                 if (current_cmd !== undefined) {
@@ -100,7 +101,7 @@ namespace atcontrol {
                         current_cmd.onCmp();
                         current_cmd = undefined;
                     }
-                    if ((line !== undefined && line.includes(current_cmd.error_match)) ||
+                    else if ((line !== undefined && line.includes(current_cmd.error_match)) ||
                         (input.runningTime() - time_at_depature) > timeout) {
                         current_cmd.onError();
                         current_cmd = undefined;

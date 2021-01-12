@@ -82,15 +82,21 @@ namespace atcontrol {
 
     class Queue<T> {
         _store: T[] = [];
-
+        count : number = 0; 
         constructor()
         {}
 
         push(val: T) {
           this._store.push(val);
+          this.count++; 
         }
         pop(): T | undefined {
-          return this._store.shift();
+            if(this.count > 0)
+            {
+                this.count--;
+                return this._store.shift();
+            }
+            return undefined;
         }
     }
 

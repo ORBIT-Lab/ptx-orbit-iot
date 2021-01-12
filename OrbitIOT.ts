@@ -9,80 +9,38 @@ namespace Orbit_IoT {
     let cloud_connected: boolean = false
     let wifi_connected: boolean = false
 
-    const bus_holdback_time : number = 500
-    let additional_holdback_time : number = 0
-    let last_cmd_time : number = input.runningTime()
-
-    function waitForFreeBus()
-    {
-        basic.pause(bus_holdback_time+additional_holdback_time)
-        additional_holdback_time = 0
-    }
-
-    function requireWait(wait : number)
-    {
-        additional_holdback_time = wait
-    }
-
-    // write AT command with CR+LF ending
-    function sendAT(command: string, wait: number = 0) {
-        serial.writeString(command + "\u000D\u000A")
-        basic.pause(wait)
-    }
-
-    function waitForResponse(exspect: string, timeout : number = 10000): boolean {
-        let serial_str: string = ""
-        let result: boolean = false
-        let time: number = input.runningTime()
-
-        while (true) {
-            serial_str += serial.readString()
-            if (serial_str.length > 200)
-                serial_str = serial_str.substr(serial_str.length - 200)
-            if (serial_str.includes(exspect)) {
-                result = true
-                break
-            }
-            else if (input.runningTime() - time > timeout) {
-                break
-            }
-            basic.pause(20)
-        }
-        return result
-    }
-
-    
-    //Initialize ESP8266 module 
-    function setupESP8266(tx: SerialPin, rx: SerialPin, baudrate: BaudRate) {
-        serial.redirect(
-            tx,
-            rx,
-            baudrate
-        )
-        waitForFreeBus()
-        sendAT("AT+RESTORE", 1000) // restore to factory settings
-        sendAT("AT+CWMODE=1") // set to STA mode
-        requireWait(500)
-    }
 
     function connectWifi(ssid: string, pw: string) : boolean {
-        waitForFreeBus()
-        sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", 0) // connect to Wifi router
-        wifi_connected = waitForResponse("WIFI GOT IP")
-        requireWait(2000)
+        var done: boolean = false; 
+        
+        atcontrol.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "WIFI GOT IP", "ERROR", function () {
+            wifi_connected = true;
+            done = true;
+            },
+            function () {
+            wifi_connected = false;
+            done = true;
+            }
+        );
+        
+        while (done == false)
+            basic.pause(20);
+
         return wifi_connected
     }
 
     function connectOrbitCloud() :boolean
     {
+        /*
         if(wifi_connected)
         {
-            waitForFreeBus()
+            
             let cmd = "AT+CIPSTART=\"TCP\",\"" + endpoint + "\","+ port
             sendAT(cmd)
             cloud_connected = waitForResponse("CONNECT");
             requireWait(500)
         }
+        */
         return cloud_connected;
     }
 
@@ -91,10 +49,11 @@ namespace Orbit_IoT {
     {
         if(cloud_connected == false)
         {
-            setupESP8266(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200)
+            atcontrol.start();
+            //setupESP8266(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200)
             if(connectWifi(wifi_ssid, wifi_pw))
             {
-                connectOrbitCloud()
+                //connectOrbitCloud()
             }
         }
     }
@@ -121,6 +80,7 @@ namespace Orbit_IoT {
 
     function sendToCloud(cmd: string, value: string)
     {
+        /*
         if(cloud_connected)
         {
             waitForFreeBus()
@@ -135,6 +95,7 @@ namespace Orbit_IoT {
             sendAT("AT+CIPSEND=" + (toSendStr.length + 2), 100)
             sendAT(toSendStr, 100) // upload data
         }
+        */
     }
 
     //% block="send group name %name" weight=5

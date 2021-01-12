@@ -1,6 +1,6 @@
 namespace atcontrol {
     const at_line_delimiter : string = "\u000D\u000A"
-    let cmd_queue : Queue<atCmd>
+    let cmd_queue : Queue<AtCmd>
 
     export function start()
     {
@@ -32,9 +32,9 @@ namespace atcontrol {
     function atCmdTask()
     {
         let current_cmd: AtCmd | undefined = undefined; 
-        var recevice_text: string = "";
+        let recevice_text: string = "";
         const timeout: number = 10000;
-        var time_at_depature: number = 0;
+        let time_at_depature: number = 0;
         while(true)
         {
             if (current_cmd === undefined) {
@@ -47,7 +47,7 @@ namespace atcontrol {
             }
 
             recevice_text += serial.readString();
-            var lines = recevice_text.split(at_line_delimiter);
+            let lines = recevice_text.split(at_line_delimiter);
             let line: string | undefined = undefined;
             if (lines.length > 1) {
                 line = lines[0]; 
@@ -72,6 +72,10 @@ namespace atcontrol {
 
     class Queue<T> {
         _store: T[] = [];
+
+        constructor()
+        {}
+
         push(val: T) {
           this._store.push(val);
         }

@@ -11,7 +11,7 @@ namespace Orbit_IoT {
 
 
     function connectWifi(ssid: string, pw: string) : boolean {
-        var done: boolean = false; 
+        let done: boolean = false; 
         
         atcontrol.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "WIFI GOT IP", "ERROR", function () {
             wifi_connected = true;

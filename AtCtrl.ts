@@ -88,14 +88,12 @@ namespace atcontrol {
 
                 let line: string | undefined = undefined;
                 recevice_text += serial.readString();
-                if(recevice_text.length > 0)
-                    led.plot(1,0);
-                /*let lines = recevice_text.split(at_line_delimiter);
+                let lines = recevice_text.split(at_line_delimiter);
                 if (lines.length > 1) {
                     led.plot(0,1)
                     line = lines[0]; 
                     recevice_text = lines[1];
-                }*/
+                }
                     
                 if (current_cmd !== undefined) {
                     if ((line !== undefined && line.includes(current_cmd.ok_match))) {

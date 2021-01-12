@@ -31,16 +31,24 @@ namespace Orbit_IoT {
 
     function connectOrbitCloud() :boolean
     {
-        /*
         if(wifi_connected)
         {
-            
+            let done: boolean = false; 
             let cmd = "AT+CIPSTART=\"TCP\",\"" + endpoint + "\","+ port
-            sendAT(cmd)
-            cloud_connected = waitForResponse("CONNECT");
-            requireWait(500)
+            atcontrol.sendAT(cmd, "OK", "ERROR", function()
+            {
+                cloud_connected = true; 
+                done = true;
+            },
+            function(){
+                 cloud_connected = false;  
+                 done = true;  
+            })
+            
+            while (done == false)
+                basic.pause(20);
+
         }
-        */
         return cloud_connected;
     }
 
@@ -50,12 +58,10 @@ namespace Orbit_IoT {
         if(cloud_connected == false)
         {
             atcontrol.start();
-            //setupESP8266(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200)
             if(connectWifi(wifi_ssid, wifi_pw))
             {
-                //connectOrbitCloud()
+                connectOrbitCloud()
             }
-            
         }
     }
 
@@ -81,11 +87,8 @@ namespace Orbit_IoT {
 
     function sendToCloud(cmd: string, value: string)
     {
-        /*
         if(cloud_connected)
         {
-            waitForFreeBus()
-
             let serial = control.deviceSerialNumber();
             let toSendStr = "{"
             toSendStr += "\"uid\":" + serial + ","
@@ -93,10 +96,10 @@ namespace Orbit_IoT {
             toSendStr += "\"payload\":" + value
             toSendStr += "}"
 
-            sendAT("AT+CIPSEND=" + (toSendStr.length + 2), 100)
-            sendAT(toSendStr, 100) // upload data
+            function ignore_callback(){};
+            atcontrol.sendAT("AT+CIPSEND=" + (toSendStr.length + 2), "Recv", "ERROR", ignore_callback, ignore_callback);
+            atcontrol.sendAT(toSendStr,"SEND OK", "ERROR",ignore_callback, ignore_callback);
         }
-        */
     }
 
     //% block="send group name %name" weight=5

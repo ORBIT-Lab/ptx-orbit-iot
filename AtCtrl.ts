@@ -42,6 +42,7 @@ namespace atcontrol {
 
             while(true)
             {
+                /*
                 if (current_cmd === undefined) {
                     current_cmd = cmd_queue.pop();
                     if (current_cmd !== undefined)
@@ -74,7 +75,7 @@ namespace atcontrol {
                         current_cmd = undefined;
                     }
                 }
-
+                */
                 basic.pause(20);
             }
         });

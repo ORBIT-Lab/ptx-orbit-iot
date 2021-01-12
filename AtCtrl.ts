@@ -95,6 +95,7 @@ namespace atcontrol {
                 if (current_cmd !== undefined) {
                     if ((recevice_text.includes(current_cmd.ok_match) || current_cmd.ok_match === "")) {
                         current_cmd.onCmp();
+                        basic.pause(500);
                         handled = true;
                         current_cmd = undefined;
                     }

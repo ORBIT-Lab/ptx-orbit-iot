@@ -59,7 +59,11 @@ namespace atcontrol {
 
 
     function setupESP8266() {
-        sendAT("AT+RESTORE", "ready", "ERROR",empty_callback, empty_callback); // restore to factory settings
+        sendAT("AT+RESTORE", "OK", "ERROR",function()
+        {
+            basic.pause(1100);
+            serial.readString(); //clear upstart info.
+        }, empty_callback); // restore to factory settings
         sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode
     }
 
@@ -83,7 +87,6 @@ namespace atcontrol {
                     current_cmd = cmd_queue.pop();
                     if (current_cmd !== undefined)
                     {
-                        led.toggle(0,0);
                         serial.writeString(current_cmd.cmd);
                         time_at_depature = input.runningTime();
                     }
@@ -95,7 +98,6 @@ namespace atcontrol {
                 if (current_cmd !== undefined) {
                     if ((recevice_text.includes(current_cmd.ok_match) || current_cmd.ok_match === "")) {
                         current_cmd.onCmp();
-                        basic.pause(500);
                         handled = true;
                         current_cmd = undefined;
                     }

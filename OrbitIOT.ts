@@ -13,10 +13,9 @@ namespace Orbit_IoT {
     function connectWifi(ssid: string, pw: string) : boolean {
         let done: boolean = false; 
         
-        atcontrol.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "WIFI GOT IP", "ERROR", function () {
+        atcontrol.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "OK", "ERROR", function () {
             wifi_connected = true;
             done = true;
-
             },
             function () {   
             wifi_connected = false;
@@ -98,13 +97,8 @@ namespace Orbit_IoT {
 
             function ignore_callback(){};
             led.toggle(0,4);
-            atcontrol.sendAT("AT+CIPSEND="+(toSendStr.length +2).toString(), ">", "ERROR", function()
-            {
-                led.toggle(3,4);
-            }, ignore_callback);
-            atcontrol.sendAT(toSendStr,"SEND OK", "ERROR",function (){
-                led.toggle(4,4);
-            }, ignore_callback);
+            atcontrol.sendAT("AT+CIPSEND="+toSendStr.length.toString(), "OK", "ERROR", ignore_callback, ignore_callback);
+            atcontrol.sendData(toSendStr,"SEND OK", "ERROR",ignore_callback,ignore_callback);
         }
     }
 

@@ -1,7 +1,7 @@
 namespace Orbit_MQTT {
 
-    const endpoint :string = "34.66.72.29"
-    const port :string = "1883"
+    const endpoint :string = "gigaslack.com"
+    const port :string = "8883"
 
     let mqtt_connected: boolean = false
     let mqtt_connecting: boolean = false
@@ -22,7 +22,13 @@ namespace Orbit_MQTT {
         });
     }
 
-    export function connect()
+    function addSubscriber(topic: string)
+    {
+        function empty(){}
+        atcontrol.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR",empty,empty);
+    }
+
+    export function connect(myTopic: string)
     {
         init();
         WiFi.waitForConnection();
@@ -36,10 +42,11 @@ namespace Orbit_MQTT {
                 mqtt_connecting = false;
             }
 
-            atcontrol.sendAT("AT+MQTTUSERCFG=0,1,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
+            atcontrol.sendAT("AT+MQTTUSERCFG=0,2,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
             {
                 atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",1", "OK", "ERROR", function()
                 {
+                    addSubscriber(myTopic);
                     mqtt_connected = true; 
                     mqtt_connecting = false;
                 },mqttConnectionError);

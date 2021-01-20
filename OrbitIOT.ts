@@ -9,7 +9,10 @@ namespace Orbit_IoT {
     {
         atcontrol.start();
         WiFi.connect(wifi_ssid, wifi_pw);
-        Orbit_MQTT.connect();
+
+        let serial = control.deviceSerialNumber();
+        let topic: string = "ceed/microbit/data/"+serial;
+        Orbit_MQTT.connect(topic);
     }
 
     //% block="cloud connected %state" weight=70

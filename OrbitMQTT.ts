@@ -20,12 +20,26 @@ namespace Orbit_MQTT {
             mqtt_connected = false;
             return "+MQTTDISCONNECTED";
         });
+        atcontrol.addWatcher("+MQTTSUBRECV", subscriptionCallback);
     }
 
     function addSubscriber(topic: string)
     {
         function empty(){}
         atcontrol.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR",empty,empty);
+    }
+
+    function subscriptionCallback(data: string): string 
+    {
+        let jsonEnd = data.indexOf("}");
+        let jsonStart = data.indexOf("{");
+
+        if(jsonEnd !== -1 && jsonStart !== -1)
+        {
+            led.toggle(0, 0);
+            return data.slice(0, jsonEnd); 
+        }
+        return "";
     }
 
     export function connect(myTopic: string)

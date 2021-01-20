@@ -2,22 +2,7 @@ namespace Orbit_IoT {
 
     const wifi_ssid :string  = "OrbitLab"
     const wifi_pw :string  = "orbitlab"
-
-    const endpoint :string = "34.66.72.29"
-    const port :string = "5000"
     
-    function connectMQTT()
-    {
-        function ignore_callback(){};
-        atcontrol.sendAT("AT+MQTTUSERCFG=0,1,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
-        {
-            atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\",1883,0", "OK", "ERROR", function()
-            {
-                atcontrol.sendAT("AT+MQTTPUB=0,\"bittest\",\"test3\",1,0", "OK", "ERROR", ignore_callback,ignore_callback);
-            },ignore_callback);
-        },ignore_callback);
-    }
-
 
     //% block="setup orbitLab cloud"
     export function setupForCloud()

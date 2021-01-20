@@ -39,7 +39,6 @@ namespace atcontrol {
         }
     }
     
-    
     const at_line_delimiter : string = "\u000D\u000A"
     let cmd_queue : Queue<AtCmd> = new Queue<AtCmd>();
 
@@ -59,6 +58,7 @@ namespace atcontrol {
 
 
     function setupESP8266() {
+        sendAT("AT", "OK", "ERROR",empty_callback,empty_callback)
         sendAT("AT+RESTORE", "OK", "ERROR",function()
         {
             basic.pause(1100);
@@ -74,6 +74,8 @@ namespace atcontrol {
     function atCmdTask()
     {
         serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
+        serial.setRxBufferSize(128);
+        
         control.inBackground(function ()
         {
             let current_cmd: AtCmd | undefined = undefined; 
@@ -93,7 +95,7 @@ namespace atcontrol {
                 }
 
                 recevice_text += serial.readString();
-                
+                              
                 let handled : boolean = false;
                 if (current_cmd !== undefined) {
                     if ((recevice_text.includes(current_cmd.ok_match) || current_cmd.ok_match === "")) {

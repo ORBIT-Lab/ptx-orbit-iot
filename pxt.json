@@ -10,7 +10,8 @@
     "files": [
         "OrbitIOT.ts",
         "AtCtrl.ts",
-        "README.md"
+        "README.md",
+        "WifiCtrl.ts"
     ],
     "testFiles": [
         "test.ts"

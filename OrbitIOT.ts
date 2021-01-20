@@ -5,6 +5,7 @@ namespace Orbit_IoT {
 
     const endpoint :string = "34.66.72.29"
     const port :string = "5000"
+    
 
     let cloud_connected: boolean = false
     let wifi_connected: boolean = false
@@ -51,6 +52,19 @@ namespace Orbit_IoT {
         return cloud_connected;
     }
 
+    function connectMQTT()
+    {
+        function ignore_callback(){};
+        atcontrol.sendAT("AT+MQTTUSERCFG=0,1,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
+        {
+            atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\",1883,0", "OK", "ERROR", function()
+            {
+                atcontrol.sendAT("AT+MQTTPUB=0,\"bittest\",\"test3\",1,0", "OK", "ERROR", ignore_callback,ignore_callback);
+            },ignore_callback);
+        },ignore_callback);
+    }
+
+
     //% block="setup orbitLab cloud"
     export function setupForCloud()
     {
@@ -59,7 +73,8 @@ namespace Orbit_IoT {
             atcontrol.start();
             if(connectWifi(wifi_ssid, wifi_pw))
             {
-                connectOrbitCloud()
+                connectMQTT();
+                //connectOrbitCloud()
             }
         }
     }
@@ -96,9 +111,10 @@ namespace Orbit_IoT {
             toSendStr += "}"
 
             function ignore_callback(){};
-            led.toggle(0,4);
             atcontrol.sendAT("AT+CIPSEND="+toSendStr.length.toString(), "OK", "ERROR", ignore_callback, ignore_callback);
             atcontrol.sendData(toSendStr,"SEND OK", "ERROR",ignore_callback,ignore_callback);
+
+            
         }
     }
 

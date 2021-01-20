@@ -6,52 +6,6 @@ namespace Orbit_IoT {
     const endpoint :string = "34.66.72.29"
     const port :string = "5000"
     
-
-    let cloud_connected: boolean = false
-    let wifi_connected: boolean = false
-
-
-    function connectWifi(ssid: string, pw: string) : boolean {
-        let done: boolean = false; 
-        
-        atcontrol.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "OK", "ERROR", function () {
-            wifi_connected = true;
-            done = true;
-            },
-            function () {   
-            wifi_connected = false;
-            done = true;
-            }
-        );
-        
-        while (done == false)
-            basic.pause(20);
-
-        return wifi_connected
-    }
-
-    function connectOrbitCloud() :boolean
-    {
-        if(wifi_connected)
-        {
-            let done: boolean = false; 
-            let cmd = "AT+CIPSTART=\"TCP\",\"" + endpoint + "\","+ port
-            atcontrol.sendAT(cmd, "CONNECT", "ERROR", function()
-            {
-                cloud_connected = true; 
-                done = true;
-            },
-            function(){
-                 cloud_connected = false;  
-                 done = true;  
-            })
-            
-            while (done == false)
-                basic.pause(20);
-        }
-        return cloud_connected;
-    }
-
     function connectMQTT()
     {
         function ignore_callback(){};
@@ -68,20 +22,14 @@ namespace Orbit_IoT {
     //% block="setup orbitLab cloud"
     export function setupForCloud()
     {
-        if(cloud_connected == false)
-        {
-            atcontrol.start();
-            if(connectWifi(wifi_ssid, wifi_pw))
-            {
-                connectMQTT();
-                //connectOrbitCloud()
-            }
-        }
+        WiFi.connect(wifi_ssid, wifi_pw);
+        Orbit_TCP.connect();
     }
 
     //% block="cloud connected %state" weight=70
     export function cloudState(state: boolean) : boolean {
-        if (cloud_connected == state) {
+        Orbit_TCP.waitForConnection();
+        if (Orbit_TCP.connected() == state) {
             return true
         }
         else {
@@ -91,7 +39,8 @@ namespace Orbit_IoT {
 
     //% block="wifi connected %state" weight=70
     export function wifiState(state: boolean) : boolean {
-        if (wifi_connected == state) {
+        WiFi.waitForConnection();
+        if (WiFi.connected() == state) {
             return true
         }
         else {
@@ -101,21 +50,14 @@ namespace Orbit_IoT {
 
     function sendToCloud(cmd: string, value: string)
     {
-        if(cloud_connected)
-        {
-            let serial = control.deviceSerialNumber();
-            let toSendStr = "{"
-            toSendStr += "\"uid\":" + serial + ","
-            toSendStr += "\"cmd\":\""+cmd+"\","
-            toSendStr += "\"payload\":" + value
-            toSendStr += "}"
 
-            function ignore_callback(){};
-            atcontrol.sendAT("AT+CIPSEND="+toSendStr.length.toString(), "OK", "ERROR", ignore_callback, ignore_callback);
-            atcontrol.sendData(toSendStr,"SEND OK", "ERROR",ignore_callback,ignore_callback);
-
-            
-        }
+        let serial = control.deviceSerialNumber();
+        let toSendStr = "{"
+        toSendStr += "\"uid\":" + serial + ","
+        toSendStr += "\"cmd\":\""+cmd+"\","
+        toSendStr += "\"payload\":" + value
+        toSendStr += "}"
+        Orbit_TCP.send(toSendStr);
     }
 
     //% block="send group name %name" weight=5

@@ -11,7 +11,8 @@
         "OrbitIOT.ts",
         "AtCtrl.ts",
         "README.md",
-        "WifiCtrl.ts"
+        "WifiCtrl.ts",
+        "OrbitTCP.ts"
     ],
     "testFiles": [
         "test.ts"

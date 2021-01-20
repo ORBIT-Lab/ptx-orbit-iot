@@ -12,7 +12,8 @@
         "AtCtrl.ts",
         "README.md",
         "WifiCtrl.ts",
-        "OrbitTCP.ts"
+        "OrbitTCP.ts",
+        "OrbitMQTT.ts"
     ],
     "testFiles": [
         "test.ts"

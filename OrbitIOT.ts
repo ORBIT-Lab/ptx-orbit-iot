@@ -24,13 +24,13 @@ namespace Orbit_IoT {
     {
         atcontrol.start();
         WiFi.connect(wifi_ssid, wifi_pw);
-        Orbit_TCP.connect();
+        Orbit_MQTT.connect();
     }
 
     //% block="cloud connected %state" weight=70
     export function cloudState(state: boolean) : boolean {
-        Orbit_TCP.waitForConnection();
-        if (Orbit_TCP.connected() == state) {
+        Orbit_MQTT.waitForConnection();
+        if (Orbit_MQTT.connected() == state) {
             return true
         }
         else {
@@ -58,7 +58,7 @@ namespace Orbit_IoT {
         toSendStr += "\"cmd\":\""+cmd+"\","
         toSendStr += "\"payload\":" + value
         toSendStr += "}"
-        Orbit_TCP.send(toSendStr);
+        Orbit_MQTT.send(toSendStr);
     }
 
     //% block="send group name %name" weight=5

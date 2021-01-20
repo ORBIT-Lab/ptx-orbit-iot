@@ -1,27 +1,12 @@
 namespace Orbit_MQTT {
 
-    const endpoint :string = "gigaslack.com"
-    const port :string = "8883"
+    const endpoint :string = "34.66.72.29"
+    const port :string = "1883"
 
     let mqtt_connected: boolean = false
     let mqtt_connecting: boolean = false
 
-
-    function updateTime()
-    {
-        function emptyFunc() {}
-        atcontrol.sendAT("AT+CIPSNTPCFG=1,8,\"ntp1.aliyun.com\"", "OK", "ERROR", emptyFunc, emptyFunc);
-        atcontrol.sendAT("AT+CIPSNTPTIME?", "OK", "ERROR",emptyFunc,emptyFunc);
-    }
-
-    function addSubscriber(topic: string)
-    {
-        function emptyFunc() {}
-        atcontrol.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR", emptyFunc, emptyFunc);
-    }
-
-
-    export function connect(myTopic : string)
+    export function connect()
     {
         WiFi.waitForConnection();
         if(WiFi.connected() && mqtt_connecting === false && mqtt_connected === false)
@@ -34,12 +19,10 @@ namespace Orbit_MQTT {
                 mqtt_connecting = false;
             }
 
-            updateTime();
-            atcontrol.sendAT("AT+MQTTUSERCFG=0,2,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
+            atcontrol.sendAT("AT+MQTTUSERCFG=0,1,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
             {
                 atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",0", "OK", "ERROR", function()
                 {
-                    addSubscriber(myTopic);
                     mqtt_connected = true; 
                     mqtt_connecting = false;
                 },mqttConnectionError);

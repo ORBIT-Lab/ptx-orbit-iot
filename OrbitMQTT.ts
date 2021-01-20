@@ -46,13 +46,13 @@ namespace Orbit_MQTT {
         return mqtt_connected;
     }
 
-    export function send(text: string)
+    export function send(text: string, topic: string)
     {
         waitForConnection();
         if (connected()) {
-            let topic: string = "ceed/microbit/data";
             function ignore_callback() { };
-            atcontrol.sendAT("AT+MQTTPUB=0,\""+topic+"\",\"+text+\",1,0", "OK", "ERROR", ignore_callback,ignore_callback);
+            atcontrol.sendAT("AT+MQTTPUBRAW=0,\""+topic+"\","+text.length+",1,0", "OK", "ERROR", ignore_callback,ignore_callback);
+            atcontrol.sendData(text, "SEND OK", "ERROR", ignore_callback, ignore_callback);
         }
     }
 

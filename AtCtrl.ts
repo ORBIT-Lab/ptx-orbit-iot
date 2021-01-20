@@ -38,14 +38,32 @@ namespace atcontrol {
             this.onError = onError;
         }
     }
+
+    class AtWatcher
+    {
+        match: string;
+        process: (data: string) => string;
+
+        constructor(match: string, process: (data: string) => string) {
+            this.match = match; 
+            this.process = process;
+        }
+    }
     
     const at_line_delimiter : string = "\u000D\u000A"
     let cmd_queue : Queue<AtCmd> = new Queue<AtCmd>();
+    let watchers: AtWatcher[] = [];
 
     export function start()
     {
         atCmdTask();
         setupESP8266()
+    }
+
+    export function addWatcher(matchStr: string, callback: (data: string) => string)
+    {
+        let val: AtWatcher = new AtWatcher(matchStr, callback);
+        watchers.push(val);
     }
 
     export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
@@ -69,6 +87,26 @@ namespace atcontrol {
 
     function empty_callback()
     {
+    }
+
+    function processWatchers(text: string): string
+    {
+        if (watchers.length == 0)
+            return text; 
+        
+        watchers.forEach(watcher => {
+            let index : number = text.indexOf(watcher.match);
+            if (index !== -1)
+            {
+                let data: string = text.substr(index, text.length - index);
+                data = watcher.process(data); 
+                let temp = text.substr(0, index); 
+                let end_start = data.length + index;
+                temp += text.substr(end_start, text.length - end_start);
+                text = temp; 
+            }
+        });
+        return text; 
     }
 
     function atCmdTask()
@@ -95,29 +133,35 @@ namespace atcontrol {
                 }
 
                 recevice_text += serial.readString();
-                              
-                let handled : boolean = false;
+                recevice_text = processWatchers(recevice_text);
+                
+
+                let handled_index : number = -1;
                 if (current_cmd !== undefined) {
-                    if ((recevice_text.includes(current_cmd.ok_match) || current_cmd.ok_match === "")) {
+                    handled_index = recevice_text.indexOf(current_cmd.ok_match);
+                    if ((handled_index !== -1) || (current_cmd.ok_match === "")) {
                         current_cmd.onCmp();
-                        handled = true;
+                        handled_index += current_cmd.ok_match.length;
                         current_cmd = undefined;
                     }
-                    else if (recevice_text.includes(current_cmd.error_match) ||
-                        (input.runningTime() - time_at_depature) > timeout) {
-                        current_cmd.onError();
-                        handled = true;
-                        current_cmd = undefined;
+                    else
+                    {
+                        handled_index = recevice_text.indexOf(current_cmd.error_match);
+                        if ((handled_index !== -1) || (input.runningTime() - time_at_depature) > timeout) {
+                            current_cmd.onError();
+                            handled_index += current_cmd.error_match.length;
+                            current_cmd = undefined;
+                        }
                     }
                 }
-                else
-                    handled = true;
+
+                if (handled_index != -1)
+                    recevice_text = recevice_text.substr(handled_index);
+                else if (recevice_text.length > 100)
+                    recevice_text = recevice_text.substr(50);
                 
-                if(handled)
-                    recevice_text = "";
-
-
-                basic.pause(20);
+                
+                basic.pause(50);
             }
         });
     }

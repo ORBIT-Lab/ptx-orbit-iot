@@ -1,10 +1,19 @@
 namespace Orbit_MQTT {
 
-    const endpoint :string = "34.66.72.29"
-    const port :string = "1883"
+    const endpoint :string = "gigaslack.com"
+    const port :string = "8883"
 
     let mqtt_connected: boolean = false
     let mqtt_connecting: boolean = false
+
+
+    function updateTime()
+    {
+        function emptyFunc() {}
+        atcontrol.sendAT("AT+CIPSNTPCFG=1,8,\"ntp1.aliyun.com\"", "OK", "ERROR", emptyFunc, emptyFunc);
+        atcontrol.sendAT("AT+CIPSNTPTIME?", "OK", "ERROR",emptyFunc,emptyFunc);
+    }
+
 
     export function connect()
     {
@@ -19,10 +28,12 @@ namespace Orbit_MQTT {
                 mqtt_connecting = false;
             }
 
-            atcontrol.sendAT("AT+MQTTUSERCFG=0,1,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
+            updateTime();
+            atcontrol.sendAT("AT+MQTTUSERCFG=0,2,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
             {
                 atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",0", "OK", "ERROR", function()
                 {
+
                     mqtt_connected = true; 
                     mqtt_connecting = false;
                 },mqttConnectionError);

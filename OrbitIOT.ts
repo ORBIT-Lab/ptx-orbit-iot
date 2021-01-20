@@ -22,6 +22,7 @@ namespace Orbit_IoT {
     //% block="setup orbitLab cloud"
     export function setupForCloud()
     {
+        atcontrol.start();
         WiFi.connect(wifi_ssid, wifi_pw);
         Orbit_TCP.connect();
     }

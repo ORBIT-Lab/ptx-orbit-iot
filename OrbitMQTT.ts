@@ -14,8 +14,14 @@ namespace Orbit_MQTT {
         atcontrol.sendAT("AT+CIPSNTPTIME?", "OK", "ERROR",emptyFunc,emptyFunc);
     }
 
+    function addSubscriber(topic: string)
+    {
+        function emptyFunc() {}
+        atcontrol.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR", emptyFunc, emptyFunc);
+    }
 
-    export function connect()
+
+    export function connect(myTopic : string)
     {
         WiFi.waitForConnection();
         if(WiFi.connected() && mqtt_connecting === false && mqtt_connected === false)
@@ -33,7 +39,7 @@ namespace Orbit_MQTT {
             {
                 atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",0", "OK", "ERROR", function()
                 {
-
+                    addSubscriber(myTopic);
                     mqtt_connected = true; 
                     mqtt_connecting = false;
                 },mqttConnectionError);

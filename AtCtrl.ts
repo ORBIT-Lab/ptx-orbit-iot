@@ -110,6 +110,41 @@ namespace atcontrol {
         return text; 
     }
 
+    let current_cmd: AtCmd | undefined = undefined; 
+    let time_at_depature: number = 0;
+    function processQueue(text: string): string
+    {
+        const timeout_ms: number = 10000;
+
+        if (current_cmd === undefined) {
+            current_cmd = cmd_queue.pop();
+            if (current_cmd !== undefined)
+            {
+                serial.writeString(current_cmd.cmd);
+                time_at_depature = input.runningTime();
+            }
+        }
+
+        if (current_cmd !== undefined)
+        {
+            let sucsess = text.includes(current_cmd.ok_match);
+            let error = text.includes(current_cmd.error_match);
+            let timeout : boolean = (input.runningTime() - time_at_depature) > timeout_ms;
+            if(sucsess || error || timeout)
+            {
+                if(sucsess)
+                    current_cmd.onCmp();
+                else
+                    current_cmd.onError();
+
+                current_cmd = undefined;
+                text = "";
+            }
+        }
+
+        return text;
+    }
+
     function atCmdTask()
     {
         serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
@@ -117,59 +152,18 @@ namespace atcontrol {
         
         control.inBackground(function ()
         {
-            let current_cmd: AtCmd | undefined = undefined; 
             let recevice_text: string = "";
-            const timeout: number = 10000;
-            let time_at_depature: number = 0;
-
+   
             while(true)
             {
-                if (current_cmd === undefined) {
-                    current_cmd = cmd_queue.pop();
-                    if (current_cmd !== undefined)
-                    {
-                        serial.writeString(current_cmd.cmd);
-                        time_at_depature = input.runningTime();
-                    }
-                }
-
                 recevice_text += serial.readString();
                 recevice_text = processWatchers(recevice_text);
-                
+                recevice_text = processQueue(recevice_text);
 
-                let handled_index : number = -1;
-                if (current_cmd !== undefined) {
-                    handled_index = recevice_text.indexOf(current_cmd.ok_match);
-                    if ((handled_index !== -1) || (current_cmd.ok_match === "")) {
-                        current_cmd.onCmp();
-                        handled_index += current_cmd.ok_match.length;
-                        current_cmd = undefined;
-                    }
-                    else
-                    {
-                        handled_index = recevice_text.indexOf(current_cmd.error_match);
-                        let has_timeout : boolean = (input.runningTime() - time_at_depature) > timeout;
-                        if ((handled_index !== -1) || has_timeout){
-                            led.toggle(4, 4)
-                            current_cmd.onError();
-                            if(has_timeout === false)
-                            {
-                                handled_index += current_cmd.error_match.length;
-                            }
-                            current_cmd = undefined;
-                        }
-                    }
-                }
-
-                if (handled_index != -1)
-                {
-                    recevice_text = recevice_text.substr(handled_index);
-                }
-                else if (recevice_text.length > 100)
+                if (recevice_text.length > 100)
                 {
                     recevice_text = recevice_text.substr(50);
                 }
-                
                 
                 basic.pause(50);
             }

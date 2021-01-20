@@ -10,14 +10,13 @@ namespace WiFi {
 
     function wifiReconnect()
     {
-        wifi_connecting = true;
-        atcontrol.sendAT("AT+CWJAP=\"" + wifi_ssid + "\",\"" + wifi_pw + "\"", "OK", "ERROR", function () {
-            wifi_connecting = false;
-        },
-        function () {
-            led.toggle(0, 0);
-            wifiReconnect();
-        });
+        if(wifi_connected == false)
+        {
+            wifi_connecting = true;
+            atcontrol.sendAT("AT+CWJAP=\"" + wifi_ssid + "\",\"" + wifi_pw + "\"", "OK", "ERROR", function () {
+                wifi_connecting = false;
+            },wifiReconnect);
+        }
     }
 
     function init() {
@@ -25,9 +24,9 @@ namespace WiFi {
             return; 
         inited = true; 
 
-        atcontrol.addWatcher("WIFI GOT IP", function (data: string): string {
+        atcontrol.addWatcher("WIFI CONNECTED", function (data: string): string {
             wifi_connected = true;
-            return "WIFI GOT IP";
+            return "WIFI CONNECTED";
         });
         atcontrol.addWatcher("WIFI DISCONNECT", function (data: string): string {
             wifi_connected = false;

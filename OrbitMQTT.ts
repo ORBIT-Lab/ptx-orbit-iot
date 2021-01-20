@@ -5,9 +5,26 @@ namespace Orbit_MQTT {
 
     let mqtt_connected: boolean = false
     let mqtt_connecting: boolean = false
+    let inited : boolean = false; 
+
+    function init() {
+        if (inited)
+            return; 
+        inited = true; 
+
+        atcontrol.addWatcher("+MQTTCONNECTED", function (data: string): string {
+            mqtt_connected = true;
+            return "+MQTTCONNECTED";
+        });
+        atcontrol.addWatcher("+MQTTDISCONNECTED", function (data: string): string {
+            mqtt_connected = false;
+            return "+MQTTDISCONNECTED";
+        });
+    }
 
     export function connect()
     {
+        init();
         WiFi.waitForConnection();
         if(WiFi.connected() && mqtt_connecting === false && mqtt_connected === false)
         {
@@ -21,7 +38,7 @@ namespace Orbit_MQTT {
 
             atcontrol.sendAT("AT+MQTTUSERCFG=0,1,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
             {
-                atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",0", "OK", "ERROR", function()
+                atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",1", "OK", "ERROR", function()
                 {
                     mqtt_connected = true; 
                     mqtt_connecting = false;

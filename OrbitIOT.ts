@@ -43,7 +43,7 @@ namespace Orbit_IoT {
         toSendStr += "\"cmd\":\""+cmd+"\","
         toSendStr += "\"payload\":" + value
         toSendStr += "}"
-        let topic: string = "ceed/microbit/data/"+serial;
+        let topic: string = "ceed/microbit/data/"+0;
         Orbit_MQTT.send(toSendStr, topic);
     }
 

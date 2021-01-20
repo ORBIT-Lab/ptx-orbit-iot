@@ -30,12 +30,12 @@ namespace atcontrol {
         onCmp: () => void;
 
         constructor(cmd: string,ok_match: string, error_match: string,
-            onCmp: () => void, onError: () => void) {
+            cmp: () => void, error: () => void) {
             this.cmd = cmd;
             this.ok_match = ok_match;
             this.error_match = error_match;
-            this.onCmp = onCmp; 
-            this.onError = onError;
+            this.onCmp = cmp; 
+            this.onError = error;
         }
     }
 
@@ -94,18 +94,19 @@ namespace atcontrol {
         if (watchers.length == 0)
             return text; 
         
-        watchers.forEach(watcher => {
+        for(let watcher of watchers)
+        {
             let index : number = text.indexOf(watcher.match);
             if (index !== -1)
             {
-                let data: string = text.substr(index, text.length - index);
+                let data: string = text.substr(index);
                 data = watcher.process(data); 
                 let temp = text.substr(0, index); 
                 let end_start = data.length + index;
-                temp += text.substr(end_start, text.length - end_start);
+                temp += text.substr(end_start);
                 text = temp; 
             }
-        });
+        }
         return text; 
     }
 
@@ -147,18 +148,27 @@ namespace atcontrol {
                     else
                     {
                         handled_index = recevice_text.indexOf(current_cmd.error_match);
-                        if ((handled_index !== -1) || (input.runningTime() - time_at_depature) > timeout) {
+                        let has_timeout : boolean = (input.runningTime() - time_at_depature) > timeout;
+                        if ((handled_index !== -1) || has_timeout){
+                            led.toggle(4, 4)
                             current_cmd.onError();
-                            handled_index += current_cmd.error_match.length;
+                            if(has_timeout === false)
+                            {
+                                handled_index += current_cmd.error_match.length;
+                            }
                             current_cmd = undefined;
                         }
                     }
                 }
 
                 if (handled_index != -1)
+                {
                     recevice_text = recevice_text.substr(handled_index);
+                }
                 else if (recevice_text.length > 100)
+                {
                     recevice_text = recevice_text.substr(50);
+                }
                 
                 
                 basic.pause(50);

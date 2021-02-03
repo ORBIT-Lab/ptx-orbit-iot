@@ -109,6 +109,18 @@ namespace Orbit_IoT {
         num_rec.push(handler);
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }
+
+    //% block="MQTT Connected" weight=3
+    //% subcategory="Orbit MQTT"
+    export function mqttConnected(handler: () => void) {
+        Orbit_MQTT.setConnectCallback(handler);
+    }
+
+    //% block="MQTT Disconnected" weight=3
+    //% subcategory="Orbit MQTT"
+    export function mqttDisconnected(handler: () => void) {
+        Orbit_MQTT.setDisconnectCallback(handler);
+    }
     
     //% block="wifi connected %state"
     //% subcategory="Wifi"
@@ -120,6 +132,18 @@ namespace Orbit_IoT {
         else {
             return false
         }
+    }
+
+    //% block="Wifi Connected" weight=3
+    //% subcategory="Wifi"
+    export function wifiConnected(handler: () => void) {
+        WiFi.setConnectCallback(handler);
+    }
+
+    //% block="Wifi Disconnected" weight=3
+    //% subcategory="Wifi"
+    export function wifiDisconnected(handler: () => void) {
+        WiFi.setDisconnectCallback(handler);
     }
 
     function mqtt_packet_callback(data:string) {

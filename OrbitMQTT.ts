@@ -8,7 +8,6 @@ namespace Orbit_MQTT {
     let inited : boolean = false; 
 
     let rec_callback : (packet:string)=> void = function (packet : string) {
-        
     }
 
     function init() {

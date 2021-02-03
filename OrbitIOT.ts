@@ -127,7 +127,7 @@ namespace Orbit_IoT {
         if (payload !== "")
         {
             if (Orbit_Format.IsCmdPacket("number", data)) {
-                let number = Number(payload);
+                let number = parseFloat(payload);
                 num_rec.forEach(callback => {
                     callback(number);
                 });

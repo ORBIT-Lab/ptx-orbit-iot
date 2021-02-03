@@ -13,7 +13,7 @@ namespace Orbit_TCP {
         {
             cloud_connecting = true;
             let cmd = "AT+CIPSTART=\"TCP\",\"" + endpoint + "\","+ port
-            atcontrol.sendAT(cmd, "CONNECT", "ERROR", function()
+            Orbit_AT.sendAT(cmd, "CONNECT", "ERROR", function()
             {
                 cloud_connected = true; 
                 cloud_connecting = false;
@@ -46,8 +46,8 @@ namespace Orbit_TCP {
         waitForConnection();
         if (connected()) {
             function ignore_callback() { };
-            atcontrol.sendAT("AT+CIPSEND=" + text.length.toString(), "OK", "ERROR", ignore_callback, ignore_callback);
-            atcontrol.sendData(text, "SEND OK", "ERROR", ignore_callback, ignore_callback);
+            Orbit_AT.sendAT("AT+CIPSEND=" + text.length.toString(), "OK", "ERROR", ignore_callback, ignore_callback);
+            Orbit_AT.sendData(text, "SEND OK", "ERROR", ignore_callback, ignore_callback);
         }
     }
 

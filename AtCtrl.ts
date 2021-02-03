@@ -1,4 +1,4 @@
-namespace atcontrol {
+namespace Orbit_AT {
     
     class Queue<T> {
         _store: T[] = [];

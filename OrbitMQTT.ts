@@ -7,26 +7,30 @@ namespace Orbit_MQTT {
     let mqtt_connecting: boolean = false
     let inited : boolean = false; 
 
+    let rec_callback : (packet:string)=> void = function (packet : string) {
+        
+    }
+
     function init() {
         if (inited)
             return; 
         inited = true; 
 
-        atcontrol.addWatcher("+MQTTCONNECTED", function (data: string): string {
+        Orbit_AT.addWatcher("+MQTTCONNECTED", function (data: string): string {
             mqtt_connected = true;
             return "+MQTTCONNECTED";
         });
-        atcontrol.addWatcher("+MQTTDISCONNECTED", function (data: string): string {
+        Orbit_AT.addWatcher("+MQTTDISCONNECTED", function (data: string): string {
             mqtt_connected = false;
             return "+MQTTDISCONNECTED";
         });
-        atcontrol.addWatcher("+MQTTSUBRECV", subscriptionCallback);
+        Orbit_AT.addWatcher("+MQTTSUBRECV", subscriptionCallback);
     }
 
     function addSubscriber(topic: string)
     {
         function empty(){}
-        atcontrol.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR",empty,empty);
+        Orbit_AT.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR",empty,empty);
     }
 
     function subscriptionCallback(data: string): string 
@@ -36,13 +40,18 @@ namespace Orbit_MQTT {
 
         if(jsonEnd !== -1 && jsonStart !== -1)
         {
-            led.toggle(0, 0);
-            return data.slice(0, jsonEnd); 
+            let packet : string =  data.slice(0, jsonEnd+1); 
+            rec_callback(packet);
+            return packet;
         }
         return "";
     }
 
-    export function connect(myTopic: string)
+    export function setDataCallback(callback: (packet:string)=> void) {
+        rec_callback = callback; 
+    }
+
+    export function connect(myTopic: string, usr: string, pw: string)
     {
         init();
         WiFi.waitForConnection();
@@ -56,9 +65,9 @@ namespace Orbit_MQTT {
                 mqtt_connecting = false;
             }
 
-            atcontrol.sendAT("AT+MQTTUSERCFG=0,2,\"mbit\",\"\",\"\",0,0,\"\"", "OK", "ERROR", function()
+            Orbit_AT.sendAT("AT+MQTTUSERCFG=0,2,\"mbit\",\""+usr+"\",\""+pw+"\",0,0,\"\"", "OK", "ERROR", function()
             {
-                atcontrol.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",1", "OK", "ERROR", function()
+                Orbit_AT.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",1", "OK", "ERROR", function()
                 {
                     addSubscriber(myTopic);
                     mqtt_connected = true; 
@@ -89,8 +98,8 @@ namespace Orbit_MQTT {
         waitForConnection();
         if (connected()) {
             function ignore_callback() { };
-            atcontrol.sendAT("AT+MQTTPUBRAW=0,\""+topic+"\","+text.length+",1,0", "OK", "ERROR", ignore_callback,ignore_callback);
-            atcontrol.sendData(text, "SEND OK", "ERROR", ignore_callback, ignore_callback);
+            Orbit_AT.sendAT("AT+MQTTPUBRAW=0,\""+topic+"\","+text.length+",1,0", "OK", "ERROR", ignore_callback,ignore_callback);
+            Orbit_AT.sendData(text, "SEND OK", "ERROR", ignore_callback, ignore_callback);
         }
     }
 

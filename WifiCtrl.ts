@@ -13,7 +13,7 @@ namespace WiFi {
         if(wifi_connected == false)
         {
             wifi_connecting = true;
-            atcontrol.sendAT("AT+CWJAP=\"" + wifi_ssid + "\",\"" + wifi_pw + "\"", "OK", "ERROR", function () {
+            Orbit_AT.sendAT("AT+CWJAP=\"" + wifi_ssid + "\",\"" + wifi_pw + "\"", "OK", "ERROR", function () {
                 wifi_connecting = false;
             },wifiReconnect);
         }
@@ -24,11 +24,11 @@ namespace WiFi {
             return; 
         inited = true; 
 
-        atcontrol.addWatcher("WIFI CONNECTED", function (data: string): string {
+        Orbit_AT.addWatcher("WIFI CONNECTED", function (data: string): string {
             wifi_connected = true;
             return "WIFI CONNECTED";
         });
-        atcontrol.addWatcher("WIFI DISCONNECT", function (data: string): string {
+        Orbit_AT.addWatcher("WIFI DISCONNECT", function (data: string): string {
             wifi_connected = false;
             wifiReconnect();
             return "WIFI DISCONNECT";
@@ -41,7 +41,7 @@ namespace WiFi {
         wifi_pw = pw; 
         if (wifi_connected == false && wifi_connecting == false) {
             wifi_connecting = true;
-            atcontrol.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "OK", "ERROR", function () {
+            Orbit_AT.sendAT("AT+CWJAP=\"" + ssid + "\",\"" + pw + "\"", "OK", "ERROR", function () {
                 wifi_connecting = false;
             },
                 function () {

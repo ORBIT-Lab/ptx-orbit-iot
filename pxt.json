@@ -13,7 +13,8 @@
         "README.md",
         "WifiCtrl.ts",
         "OrbitTCP.ts",
-        "OrbitMQTT.ts"
+        "OrbitMQTT.ts",
+        "OrbitFormat.ts"
     ],
     "testFiles": [
         "test.ts"

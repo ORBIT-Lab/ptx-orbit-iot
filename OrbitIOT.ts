@@ -50,15 +50,15 @@ namespace Orbit_IoT {
     }
 
 
-    //% block="setup orbitLab cloud" weight=90
+    //% block="setup orbitLab cloud with Username %user and password %password" weight=90
     //% subcategory="Orbit MQTT"
-    export function setupForMQTTCloud() {
+    export function setupForMQTTCloud(user: string, password: string) {
         Orbit_AT.start();
         WiFi.connect(wifi_ssid, wifi_pw);
 
         let serial = control.deviceSerialNumber();
         let topic: string = "ceed/microbit/data/"+serial;
-        Orbit_MQTT.connect(topic,"microbit","potluck-censure-siege-pervious-formosan-jitters");
+        Orbit_MQTT.connect(topic,user,password);
         Orbit_MQTT.waitForConnection();
     }
 

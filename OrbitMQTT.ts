@@ -7,8 +7,10 @@ namespace Orbit_MQTT {
     let mqtt_connecting: boolean = false
     let inited : boolean = false; 
 
+    let connect_callback : ()=>void = function(){};
+    let disconnect_callback : ()=>void = function(){};
+
     let rec_callback : (packet:string)=> void = function (packet : string) {
-        
     }
 
     function init() {
@@ -18,10 +20,12 @@ namespace Orbit_MQTT {
 
         Orbit_AT.addWatcher("+MQTTCONNECTED", function (data: string): string {
             mqtt_connected = true;
+            connect_callback();
             return "+MQTTCONNECTED";
         });
         Orbit_AT.addWatcher("+MQTTDISCONNECTED", function (data: string): string {
             mqtt_connected = false;
+            disconnect_callback();
             return "+MQTTDISCONNECTED";
         });
         Orbit_AT.addWatcher("+MQTTSUBRECV", subscriptionCallback);
@@ -103,5 +107,14 @@ namespace Orbit_MQTT {
         }
     }
 
+    export function setDisconnectCallback(callback: ()=>void)
+    {
+        disconnect_callback = callback; 
+    }
+
+    export function setConnectCallback(callback: ()=>void)
+    {
+        connect_callback = callback; 
+    }
 
 }

@@ -50,15 +50,15 @@ namespace Orbit_IoT {
     }
 
 
-    //% block="setup orbitLab cloud" weight=90
+    //% block="setup orbitLab cloud with Username %user and password %password" weight=90
     //% subcategory="Orbit MQTT"
-    export function setupForMQTTCloud() {
+    export function setupForMQTTCloud(user: string, password: string) {
         Orbit_AT.start();
         WiFi.connect(wifi_ssid, wifi_pw);
 
         let serial = control.deviceSerialNumber();
         let topic: string = "ceed/microbit/data/"+serial;
-        Orbit_MQTT.connect(topic,"microbit","potluck-censure-siege-pervious-formosan-jitters");
+        Orbit_MQTT.connect(topic,user,password);
         Orbit_MQTT.waitForConnection();
     }
 
@@ -81,7 +81,8 @@ namespace Orbit_IoT {
         sendMqttTo(packet, 0);
     }
 
-    //% block="send a number %value to %to (use 0 for server)" weight=4
+
+    //% block="send a number %value to %to (0 is server)" weight=4
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTT(value: number, to: number)
     {
@@ -109,6 +110,18 @@ namespace Orbit_IoT {
         num_rec.push(handler);
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }
+
+    //% block="MQTT Connected" weight=3
+    //% subcategory="Orbit MQTT"
+    export function mqttConnected(handler: () => void) {
+        Orbit_MQTT.setConnectCallback(handler);
+    }
+
+    //% block="MQTT Disconnected" weight=3
+    //% subcategory="Orbit MQTT"
+    export function mqttDisconnected(handler: () => void) {
+        Orbit_MQTT.setDisconnectCallback(handler);
+    }
     
     //% block="wifi connected %state"
     //% subcategory="Wifi"
@@ -122,12 +135,24 @@ namespace Orbit_IoT {
         }
     }
 
+    //% block="Wifi Connected" weight=3
+    //% subcategory="Wifi"
+    export function wifiConnected(handler: () => void) {
+        WiFi.setConnectCallback(handler);
+    }
+
+    //% block="Wifi Disconnected" weight=3
+    //% subcategory="Wifi"
+    export function wifiDisconnected(handler: () => void) {
+        WiFi.setDisconnectCallback(handler);
+    }
+
     function mqtt_packet_callback(data:string) {
         let payload = Orbit_Format.GetPayload(data);
         if (payload !== "")
         {
             if (Orbit_Format.IsCmdPacket("number", data)) {
-                let number = Number(payload);
+                let number = parseFloat(payload);
                 num_rec.forEach(callback => {
                     callback(number);
                 });

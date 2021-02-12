@@ -81,7 +81,7 @@ namespace Orbit_IoT {
         sendMqttTo(packet, 0);
     }
 
-    //% block="send a number %value to %to" weight=4
+    //% block="send a number %value to %to (use 0 for server)" weight=4
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTT(value: number, to: number)
     {

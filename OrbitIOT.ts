@@ -78,7 +78,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendNameCmdMQTT(name: string)
     {
-        let packet = Orbit_Format.CreatePacket("name", "\"" + name + "\"", institution_id);
+        let packet = Orbit_Format.CreatePacket("name", name, institution_id);
         sendMqttTo(packet, 0);
     }
 
@@ -87,8 +87,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTT(value: number, to: number)
     {
-        let id : string = to == 0 ? institution_id : "";
-        let packet = Orbit_Format.CreatePacket("number", value.toString(), id);
+        let packet = Orbit_Format.CreatePacket("number", value.toString(), institution_id);
         sendMqttTo(packet, to);
     }
 
@@ -96,7 +95,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendTextCmdMQTT(text: string)
     {
-        let packet = Orbit_Format.CreatePacket("text", "\"" + text + "\"", institution_id);
+        let packet = Orbit_Format.CreatePacket("text",text, institution_id);
         sendMqttTo(packet, 0);
     }
 

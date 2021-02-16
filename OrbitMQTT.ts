@@ -39,12 +39,10 @@ namespace Orbit_MQTT {
 
     function subscriptionCallback(data: string): string 
     {
-        let jsonEnd = data.indexOf("}");
         let jsonStart = data.indexOf("{");
-
-        if(jsonEnd !== -1 && jsonStart !== -1)
+        if(jsonStart !== -1)
         {
-            let packet : string =  data.slice(0, jsonEnd+1); 
+            let packet : string =  data.substr(jsonStart); 
             rec_callback(packet);
             return packet;
         }
@@ -69,7 +67,9 @@ namespace Orbit_MQTT {
                 mqtt_connecting = false;
             }
 
-            Orbit_AT.sendAT("AT+MQTTUSERCFG=0,2,\"mbit\",\""+usr+"\",\""+pw+"\",0,0,\"\"", "OK", "ERROR", function()
+            let serial = control.deviceSerialNumber();
+            let micro_id = "mbit"+serial;
+            Orbit_AT.sendAT("AT+MQTTUSERCFG=0,2,\""+micro_id+"\",\""+usr+"\",\""+pw+"\",0,0,\"\"", "OK", "ERROR", function()
             {
                 Orbit_AT.sendAT("AT+MQTTCONN=0,\""+endpoint+"\","+port+",1", "OK", "ERROR", function()
                 {

@@ -8,9 +8,9 @@ namespace Orbit_Format
         let packet = "{"
         packet += "\"uid\":" + serial + ","
         packet += "\"cmd\":\""+cmd+"\","
-        packet += "\"payload\":\""+value+"\""
+        packet += "\"payload\":\""+value+"\","
         if(institution !== "")
-            packet += "\"institution_uid\":\""+institution+"\","
+            packet += "\"institution_uid\":\""+institution+"\""
         packet += "}"
         return packet;
     }

@@ -103,7 +103,7 @@ namespace Orbit_MQTT {
         if (connected()) {
             function ignore_callback() { };
             Orbit_AT.sendAT("AT+MQTTPUBRAW=0,\""+topic+"\","+text.length+",1,0", "OK", "ERROR", ignore_callback,ignore_callback);
-            Orbit_AT.sendData(text, "SEND OK", "ERROR", ignore_callback, ignore_callback);
+            Orbit_AT.sendData(text, "+MQTTPUB:OK", "ERROR", ignore_callback, ignore_callback);
         }
     }
 

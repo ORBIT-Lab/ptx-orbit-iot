@@ -165,7 +165,10 @@ namespace Orbit_AT {
                     recevice_text = recevice_text.substr(50);
                 }
                 
-                basic.pause(50);
+                if(cmd_queue.count == 0)
+                    basic.pause(200);
+                else
+                    basic.pause(50);
             }
         });
     }

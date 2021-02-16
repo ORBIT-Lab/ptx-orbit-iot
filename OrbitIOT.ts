@@ -3,6 +3,7 @@ namespace Orbit_IoT {
     const wifi_ssid :string  = "OrbitLab"
     const wifi_pw :string  = "orbitlab"
     
+    let institution_id = "";
     let num_rec : {(number: number): void;}[] = [];
 
     //% block="setup orbitLab cloud" weight=90
@@ -29,7 +30,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit TCP"
     export function sendNameCmdTCP(name: string)
     {
-        let packet = Orbit_Format.CreatePacket("name", "\"" + name + "\"");
+        let packet = Orbit_Format.CreatePacket("name", "\"" + name + "\"", institution_id);
         Orbit_TCP.send(packet);
     }
 
@@ -37,7 +38,7 @@ namespace Orbit_IoT {
      //% subcategory="Orbit TCP"
     export function sendNumberCmdTCP(value: number)
     {
-        let packet = Orbit_Format.CreatePacket("number", value.toString());
+        let packet = Orbit_Format.CreatePacket("number", value.toString(), institution_id);
         Orbit_TCP.send(packet);
     }
 
@@ -45,17 +46,17 @@ namespace Orbit_IoT {
     //% subcategory="Orbit TCP"
     export function sendTextCmdTCP(text: string)
     {
-        let packet = Orbit_Format.CreatePacket("text", "\"" + text + "\"");
+        let packet = Orbit_Format.CreatePacket("text", "\"" + text + "\"", institution_id);
         Orbit_TCP.send(packet);
     }
 
 
-    //% block="setup orbitLab cloud with Username %user and password %password" weight=90
+    //% block="setup orbitLab cloud with Username %user and password %password and institution id %institution"  weight=90
     //% subcategory="Orbit MQTT"
-    export function setupForMQTTCloud(user: string, password: string) {
+    export function setupForMQTTCloud(user: string, password: string, institution : string) {
         Orbit_AT.start();
         WiFi.connect(wifi_ssid, wifi_pw);
-
+        institution_id = institution;
         let serial = control.deviceSerialNumber();
         let topic: string = "ceed/microbit/data/"+serial;
         Orbit_MQTT.connect(topic,user,password);
@@ -77,7 +78,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendNameCmdMQTT(name: string)
     {
-        let packet = Orbit_Format.CreatePacket("name", "\"" + name + "\"");
+        let packet = Orbit_Format.CreatePacket("name", "\"" + name + "\"", institution_id);
         sendMqttTo(packet, 0);
     }
 
@@ -86,7 +87,8 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTT(value: number, to: number)
     {
-        let packet = Orbit_Format.CreatePacket("number", value.toString());
+        let id : string = to == 0 ? institution_id : "";
+        let packet = Orbit_Format.CreatePacket("number", value.toString(), id);
         sendMqttTo(packet, to);
     }
 
@@ -94,7 +96,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendTextCmdMQTT(text: string)
     {
-        let packet = Orbit_Format.CreatePacket("text", "\"" + text + "\"");
+        let packet = Orbit_Format.CreatePacket("text", "\"" + text + "\"", institution_id);
         sendMqttTo(packet, 0);
     }
 

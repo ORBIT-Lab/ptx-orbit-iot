@@ -1,18 +1,19 @@
 namespace Orbit_Format
 {
 
-    export function CreatePacket(cmd: string, value: string) : string
+    export function CreatePacket(cmd: string, value: string, institution: string) : string
     {
 
         let serial = control.deviceSerialNumber();
         let packet = "{"
         packet += "\"uid\":" + serial + ","
         packet += "\"cmd\":\""+cmd+"\","
+        if(institution !== "")
+            packet += "\"institution_uid\":\""+institution+"\","
         packet += "\"payload\":" + value
         packet += "}"
         return packet;
     }
-
 
     export function IsCmdPacket(cmd: string, packet: string): boolean {
         return packet.includes("\"cmd\":\"" + cmd + "\"");

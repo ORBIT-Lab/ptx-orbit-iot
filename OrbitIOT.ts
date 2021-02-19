@@ -7,7 +7,7 @@ namespace Orbit_IoT {
     let num_rec : {(number: number): void;}[] = [];
 
     //% block="setup orbitLab cloud" weight=90
-    //% block.loc.dk="start orbitLab cloud"
+    //% block.loc.da="start orbitLab cloud"
     //% subcategory="Orbit TCP"
     export function setupForTCPCloud() {
         Orbit_AT.start();
@@ -16,7 +16,7 @@ namespace Orbit_IoT {
     }
 
     //% block="cloud connected %state" weight=70
-    //% block.loc.dk="forbundet til cloud %state"
+    //% block.loc.da="forbundet til cloud %state"
     //% subcategory="Orbit TCP"
     export function cloudStateTCP(state: boolean) : boolean {
         Orbit_TCP.waitForConnection();
@@ -29,7 +29,7 @@ namespace Orbit_IoT {
     }
 
     //% block="send group name %name" weight=5
-    //% block.loc.dk="send gruppe navn %name"
+    //% block.loc.da="send gruppe navn %name"
     //% subcategory="Orbit TCP"
     export function sendNameCmdTCP(name: string)
     {
@@ -38,7 +38,7 @@ namespace Orbit_IoT {
     }
 
     //% block="send a number %value" weight=4
-    //% block.loc.dk="send nummer %value"
+    //% block.loc.da="send nummer %value"
     //% subcategory="Orbit TCP"
     export function sendNumberCmdTCP(value: number)
     {
@@ -47,7 +47,7 @@ namespace Orbit_IoT {
     }
 
     //% block="send text %text" weight=4
-    //% block.loc.dk="send tekst %text"
+    //% block.loc.da="send tekst %text"
     //% subcategory="Orbit TCP"
     export function sendTextCmdTCP(text: string)
     {
@@ -57,7 +57,7 @@ namespace Orbit_IoT {
 
 
     //% block="setup orbitLab cloud with Username %user and password %password and institution id %institution"  weight=90
-    //% block.loc.dk="Forbind til orbitLab cloud med brugernavn %user og kode %password og skole id %institution"
+    //% block.loc.da="Forbind til orbitLab cloud med brugernavn %user og kode %password og skole id %institution"
     //% subcategory="Orbit MQTT"
     export function setupForMQTTCloud(user: string, password: string, institution : string) {
         Orbit_AT.start();
@@ -70,7 +70,7 @@ namespace Orbit_IoT {
     }
 
     //% block="cloud connected %state" weight=70
-    //% block.loc.dk="forbundet til cloud %state"
+    //% block.loc.da="forbundet til cloud %state"
     //% subcategory="Orbit MQTT"
     export function cloudStateMQTT(state: boolean) : boolean {
         if (Orbit_MQTT.connected() == state) {
@@ -82,7 +82,7 @@ namespace Orbit_IoT {
     }
 
     //% block="send group name %name to server" weight=5
-    //% block.loc.dk="send gruppe navn %name"
+    //% block.loc.da="send gruppe navn %name"
     //% subcategory="Orbit MQTT"
     export function sendNameCmdMQTT(name: string)
     {
@@ -92,7 +92,7 @@ namespace Orbit_IoT {
 
 
     //% block="send a number %value to %to (0 is server)" weight=4
-    //% block.loc.dk="send nummer %value til %to (0 er hjemmesiden)"
+    //% block.loc.da="send nummer %value til %to (0 er hjemmesiden)"
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTT(value: number, to: number)
     {
@@ -101,7 +101,7 @@ namespace Orbit_IoT {
     }
 
     //% block="send text %text" weight=4
-    //% block.loc.dk="send tekst %text"
+    //% block.loc.da="send tekst %text"
     //% subcategory="Orbit MQTT"
     export function sendTextCmdMQTT(text: string)
     {
@@ -116,7 +116,7 @@ namespace Orbit_IoT {
 
 
     //% block="Received Number" weight=3
-    //% block.loc.dk="Nummer modtaget"
+    //% block.loc.da="Nummer modtaget"
     //% subcategory="Orbit MQTT"
     export function addMQTTNumHandler(handler: (number: number) => void) {
         num_rec.push(handler);
@@ -124,21 +124,21 @@ namespace Orbit_IoT {
     }
 
     //% block="MQTT Connected" weight=3
-    //% block.loc.dk="cloud forbundet"
+    //% block.loc.da="cloud forbundet"
     //% subcategory="Orbit MQTT"
     export function mqttConnected(handler: () => void) {
         Orbit_MQTT.setConnectCallback(handler);
     }
 
     //% block="MQTT Disconnected" weight=3
-    //% block.loc.dk="cloud mistet forbindelsen"
+    //% block.loc.da="cloud mistet forbindelsen"
     //% subcategory="Orbit MQTT"
     export function mqttDisconnected(handler: () => void) {
         Orbit_MQTT.setDisconnectCallback(handler);
     }
     
     //% block="wifi connected %state"
-    //% block.loc.dk="wifi forbundet %state"
+    //% block.loc.da="wifi forbundet %state"
     //% subcategory="Wifi"
     export function wifiState(state: boolean) : boolean {
         WiFi.waitForConnection();
@@ -151,14 +151,14 @@ namespace Orbit_IoT {
     }
 
     //% block="Wifi Connected" weight=3
-    //% block.loc.dk="wifi forbundet"
+    //% block.loc.da="wifi forbundet"
     //% subcategory="Wifi"
     export function wifiConnected(handler: () => void) {
         WiFi.setConnectCallback(handler);
     }
 
     //% block="Wifi Disconnected" weight=3
-    //% block.loc.dk="wifi mistet forbindelsen"
+    //% block.loc.da="wifi mistet forbindelsen"
     //% subcategory="Wifi"
     export function wifiDisconnected(handler: () => void) {
         WiFi.setDisconnectCallback(handler);

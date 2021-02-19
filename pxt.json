@@ -1,11 +1,9 @@
 {
-    "name": "OrbitLab_IOT",
+    "name": "Orbit_IoT",
     "version": "2.0.0",
     "description": "",
     "dependencies": {
-        "core": "*",
-        "radio": "*",
-        "microphone": "*"
+        "core": "*"
     },
     "files": [
         "OrbitIOT.ts",

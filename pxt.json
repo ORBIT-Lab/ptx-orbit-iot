@@ -13,7 +13,8 @@
         "OrbitTCP.ts",
         "OrbitMQTT.ts",
         "OrbitFormat.ts",
-        "_locales/Orbit_IoT-strings.json"
+        "_locales/Orbit_IoT-strings.json",
+        "_locales/dk/Orbit_IoT-strings.json"
     ],
     "testFiles": [
         "test.ts"

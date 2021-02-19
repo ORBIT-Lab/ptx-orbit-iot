@@ -14,7 +14,8 @@
         "WifiCtrl.ts",
         "OrbitTCP.ts",
         "OrbitMQTT.ts",
-        "OrbitFormat.ts"
+        "OrbitFormat.ts",
+        "_locales/Orbit_IoT-strings.json"
     ],
     "testFiles": [
         "test.ts"

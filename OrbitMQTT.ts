@@ -20,7 +20,8 @@ namespace Orbit_MQTT {
 
         Orbit_AT.addWatcher("+MQTTCONNECTED", function (data: string): string {
             mqtt_connected = true;
-            connect_callback();
+            if(!mqtt_connecting)
+                connect_callback();
             return "+MQTTCONNECTED";
         });
         Orbit_AT.addWatcher("+MQTTDISCONNECTED", function (data: string): string {
@@ -76,6 +77,7 @@ namespace Orbit_MQTT {
                     addSubscriber(myTopic);
                     mqtt_connected = true; 
                     mqtt_connecting = false;
+                    connect_callback();
                 },mqttConnectionError);
             }, mqttConnectionError);
         }

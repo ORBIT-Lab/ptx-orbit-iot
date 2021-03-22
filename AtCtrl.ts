@@ -68,10 +68,12 @@ namespace Orbit_AT {
 
     export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
         cmd_queue.push(new AtCmd(command+at_line_delimiter, ok_match, error_match, cmpCallback, errorCallback));
+        processQueue("");
     }
 
     export function sendData(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
         cmd_queue.push(new AtCmd(command, ok_match, error_match, cmpCallback, errorCallback));
+        processQueue("");
     }
 
 
@@ -102,11 +104,25 @@ namespace Orbit_AT {
     }
 
     let current_cmd: AtCmd | undefined = undefined; 
+    let last_cmd_send : number = 0;
+    const timeout_ms: number = 15000;
 
-    function processQueue(text: string): string
+    function checkForEventTimeout()
     {
-        const timeout_ms: number = 10000;
+        if (current_cmd !== undefined)
+        {
+            let time_since_start = input.runningTime()-last_cmd_send;
+            if(time_since_start > timeout_ms)
+            {
+                current_cmd.onError();
+                current_cmd = undefined;
+                processQueue("");
+            }
+        }
+    }
 
+    function processQueue(text: string)
+    {
         if (current_cmd !== undefined)
         {
             let sucsess = text.includes(current_cmd.ok_match);
@@ -128,10 +144,9 @@ namespace Orbit_AT {
             if (current_cmd !== undefined)
             {
                 serial.writeString(current_cmd.cmd);
+                last_cmd_send = input.runningTime();
             }
         }
-
-        return text;
     }
 
     function atCmdTask()
@@ -143,8 +158,16 @@ namespace Orbit_AT {
 
             processWatchers(recevice_text);
             processQueue(recevice_text);
-
         });
+
+        control.inBackground(function () {
+            while(true)
+            {
+                checkForEventTimeout();
+                basic.pause(2000);
+            }
+        });
+
     }
 
     

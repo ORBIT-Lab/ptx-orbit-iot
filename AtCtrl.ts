@@ -96,7 +96,7 @@ namespace Orbit_AT {
         sendAT("AT", "OK", "ERROR",empty_callback,empty_callback)
         sendAT("AT+RESTORE", "OK", "ERROR",function()
         {
-            basic.pause(1500);
+            basic.pause(5000);
             serial.readString(); //clear upstart info.
         }, empty_callback); // restore to factory settings
         sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode

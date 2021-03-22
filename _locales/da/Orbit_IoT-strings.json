@@ -18,5 +18,6 @@
     "{id:category}Orbit_IoT": "Orbit IOT",
     "{id:subcategory}Wifi": "Wifi",
     "{id:subcategory}Orbit MQTT": "Orbit MQTT",
-    "{id:subcategory}Orbit TCP": "Orbit TCP"
+    "{id:subcategory}Orbit TCP": "Orbit TCP",
+    "Orbit_IoT.wifiConnect|block": "forbind til wifi. WiFi navn %ssid, password %pw"
 }

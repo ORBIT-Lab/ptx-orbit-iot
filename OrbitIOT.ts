@@ -6,62 +6,14 @@ namespace Orbit_IoT {
     let institution_id = "";
     let num_rec : {(number: number): void;}[] = [];
 
-    //% block="setup orbitLab cloud" weight=90
-    //% block.loc.da="start orbitLab cloud"
-    //% subcategory="Orbit TCP"
-    export function setupForTCPCloud() {
-        Orbit_AT.start();
-        WiFi.connect(wifi_ssid, wifi_pw);
-        Orbit_TCP.connect();
-    }
-
-    //% block="cloud connected %state" weight=70
-    //% block.loc.da="forbundet til cloud %state"
-    //% subcategory="Orbit TCP"
-    export function cloudStateTCP(state: boolean) : boolean {
-        Orbit_TCP.waitForConnection();
-        if (Orbit_TCP.connected() == state) {
-            return true
-        }
-        else {
-            return false
-        }
-    }
-
-    //% block="send group name %name" weight=5
-    //% block.loc.da="send gruppe navn %name"
-    //% subcategory="Orbit TCP"
-    export function sendNameCmdTCP(name: string)
-    {
-        let packet = Orbit_Format.CreatePacket("name", "\"" + name + "\"", institution_id);
-        Orbit_TCP.send(packet);
-    }
-
-    //% block="send a number %value" weight=4
-    //% block.loc.da="send nummer %value"
-    //% subcategory="Orbit TCP"
-    export function sendNumberCmdTCP(value: number)
-    {
-        let packet = Orbit_Format.CreatePacket("number", value.toString(), institution_id);
-        Orbit_TCP.send(packet);
-    }
-
-    //% block="send text %text" weight=4
-    //% block.loc.da="send tekst %text"
-    //% subcategory="Orbit TCP"
-    export function sendTextCmdTCP(text: string)
-    {
-        let packet = Orbit_Format.CreatePacket("text", "\"" + text + "\"", institution_id);
-        Orbit_TCP.send(packet);
-    }
-
 
     //% block="setup orbitLab cloud with Username %user and password %password and institution id %institution"  weight=90
     //% block.loc.da="Forbind til orbitLab cloud med brugernavn %user og kode %password og skole id %institution"
     //% subcategory="Orbit MQTT"
     export function setupForMQTTCloud(user: string, password: string, institution : string) {
         Orbit_AT.start();
-        WiFi.connect(wifi_ssid, wifi_pw);
+        if(!WiFi.connected() && !WiFi.connecting())
+            WiFi.connect(wifi_ssid, wifi_pw);
         institution_id = institution;
         let serial = control.deviceSerialNumber();
         let topic: string = "ceed/microbit/data/"+serial;
@@ -137,6 +89,16 @@ namespace Orbit_IoT {
         Orbit_MQTT.setDisconnectCallback(handler);
     }
     
+    //% block="Connect to hotspot. WiFi name %ssid, password %pw"
+    //% block.loc.da="forbind til wifi. WiFi navn %ssid, password %pw"
+    //% subcategory="Wifi"
+    export function wifiConnect(ssid: string, pw: string) {
+        if(!WiFi.connected() && !WiFi.connecting())
+        {
+            WiFi.connect(ssid, pw);
+        }
+    }
+
     //% block="wifi connected %state"
     //% block.loc.da="wifi forbundet %state"
     //% subcategory="Wifi"

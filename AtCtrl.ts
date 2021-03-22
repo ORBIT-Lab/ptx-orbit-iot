@@ -89,48 +89,29 @@ namespace Orbit_AT {
     {
     }
 
-    function processWatchers(text: string): string
+    function processWatchers(text: string)
     {
-        if (watchers.length == 0)
-            return text; 
-        
         for(let watcher of watchers)
         {
             let index : number = text.indexOf(watcher.match);
             if (index !== -1)
             {
-                let data: string = text.substr(index);
-                data = watcher.process(data); 
-                let temp = text.substr(0, index); 
-                let end_start = data.length + index;
-                temp += text.substr(end_start);
-                text = temp; 
+                watcher.process(text); 
             }
         }
-        return text; 
     }
 
     let current_cmd: AtCmd | undefined = undefined; 
-    let time_at_depature: number = 0;
+
     function processQueue(text: string): string
     {
         const timeout_ms: number = 10000;
-
-        if (current_cmd === undefined) {
-            current_cmd = cmd_queue.pop();
-            if (current_cmd !== undefined)
-            {
-                serial.writeString(current_cmd.cmd);
-                time_at_depature = input.runningTime();
-            }
-        }
 
         if (current_cmd !== undefined)
         {
             let sucsess = text.includes(current_cmd.ok_match);
             let error = text.includes(current_cmd.error_match);
-            let timeout : boolean = (input.runningTime() - time_at_depature) > timeout_ms;
-            if(sucsess || error || timeout)
+            if(sucsess || error)
             {
                 if(sucsess)
                     current_cmd.onCmp();
@@ -142,6 +123,14 @@ namespace Orbit_AT {
             }
         }
 
+        if (current_cmd === undefined) {
+            current_cmd = cmd_queue.pop();
+            if (current_cmd !== undefined)
+            {
+                serial.writeString(current_cmd.cmd);
+            }
+        }
+
         return text;
     }
 
@@ -149,27 +138,12 @@ namespace Orbit_AT {
     {
         serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
         serial.setRxBufferSize(128);
-        
-        control.inBackground(function ()
-        {
-            let recevice_text: string = "";
-   
-            while(true)
-            {
-                recevice_text += serial.readString();
-                recevice_text = processWatchers(recevice_text);
-                recevice_text = processQueue(recevice_text);
+        serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+            let recevice_text = serial.readUntil(serial.delimiters(Delimiters.NewLine));
 
-                if (recevice_text.length > 100)
-                {
-                    recevice_text = recevice_text.substr(50);
-                }
-                
-                if(cmd_queue.count == 0)
-                    basic.pause(200);
-                else
-                    basic.pause(50);
-            }
+            processWatchers(recevice_text);
+            processQueue(recevice_text);
+
         });
     }
 

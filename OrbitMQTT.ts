@@ -18,16 +18,14 @@ namespace Orbit_MQTT {
             return; 
         inited = true; 
 
-        Orbit_AT.addWatcher("+MQTTCONNECTED", function (data: string): string {
+        Orbit_AT.addWatcher("+MQTTCONNECTED", function (data: string) {
             mqtt_connected = true;
             if(!mqtt_connecting)
                 connect_callback();
-            return "+MQTTCONNECTED";
         });
-        Orbit_AT.addWatcher("+MQTTDISCONNECTED", function (data: string): string {
+        Orbit_AT.addWatcher("+MQTTDISCONNECTED", function (data: string) {
             mqtt_connected = false;
             disconnect_callback();
-            return "+MQTTDISCONNECTED";
         });
         Orbit_AT.addWatcher("+MQTTSUBRECV", subscriptionCallback);
     }
@@ -38,16 +36,14 @@ namespace Orbit_MQTT {
         Orbit_AT.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR",empty,empty);
     }
 
-    function subscriptionCallback(data: string): string 
+    function subscriptionCallback(data: string) 
     {
         let jsonStart = data.indexOf("{");
         if(jsonStart !== -1)
         {
             let packet : string =  data.substr(jsonStart); 
             rec_callback(packet);
-            return packet;
         }
-        return "";
     }
 
     export function setDataCallback(callback: (packet:string)=> void) {

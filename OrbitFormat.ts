@@ -30,5 +30,16 @@ namespace Orbit_Format
         return ""
     }
 
+    export function GetSender(packet: string): number {
+        let payload_id = "\"uid\":";
+        let index = packet.indexOf(payload_id);
+        if (index >= 0) {
+            index += payload_id.length;
+            let end = packet.indexOf(",", index);
+            return parseInt(packet.substr(index, end-index));
+        }
+        return 0;
+    }
+
 
 }

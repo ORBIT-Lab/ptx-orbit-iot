@@ -30,12 +30,11 @@ namespace WiFi {
             return; 
         inited = true; 
 
-        Orbit_AT.addWatcher("WIFI CONNECTED", function (data: string): string {
+        Orbit_AT.addWatcher("WIFI CONNECTED", function (data: string): void {
             wifi_connected = true;
             wifi_connect_callback();
-            return "WIFI CONNECTED";
         });
-        Orbit_AT.addWatcher("WIFI DISCONNECT", function (data: string): string {
+        Orbit_AT.addWatcher("WIFI DISCONNECT", function (data: string): void {
             if(wifi_connected)
             {
                 wifi_disconnect_callback();
@@ -43,7 +42,6 @@ namespace WiFi {
             }
             if(!reconnecting)
                 wifiReconnect();
-            return "WIFI DISCONNECT";
         });
     }
 

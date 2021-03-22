@@ -4,13 +4,17 @@ namespace Orbit_IoT {
     const wifi_pw :string  = "orbitlab"
     
     let institution_id = "";
-    let num_rec : {(number: number): void;}[] = [];
+    let num_rec : {(number: number, from: number): void;}[] = [];
 
 
     //% block="setup orbitLab cloud with Username %user and password %password and institution id %institution"  weight=90
     //% block.loc.da="Forbind til orbitLab cloud med brugernavn %user og kode %password og skole id %institution"
     //% subcategory="Orbit MQTT"
     export function setupForMQTTCloud(user: string, password: string, institution : string) {
+        user = user.trim();
+        password = password.trim();
+        institution = institution.trim();
+        
         Orbit_AT.start();
         if(!WiFi.connected() && !WiFi.connecting())
             WiFi.connect(wifi_ssid, wifi_pw);
@@ -38,6 +42,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendNameCmdMQTT(name: string)
     {
+        name = name.trim();
         let packet = Orbit_Format.CreatePacket("name", name, institution_id);
         sendMqttTo(packet, 0);
     }
@@ -57,6 +62,7 @@ namespace Orbit_IoT {
     //% subcategory="Orbit MQTT"
     export function sendTextCmdMQTT(text: string)
     {
+        text = text.trim();
         let packet = Orbit_Format.CreatePacket("text",text, institution_id);
         sendMqttTo(packet, 0);
     }
@@ -70,7 +76,7 @@ namespace Orbit_IoT {
     //% block="Received Number" weight=3
     //% block.loc.da="Nummer modtaget"
     //% subcategory="Orbit MQTT"
-    export function addMQTTNumHandler(handler: (number: number) => void) {
+    export function addMQTTNumHandler(handler: (number: number, from: number) => void) {
         num_rec.push(handler);
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }
@@ -93,6 +99,10 @@ namespace Orbit_IoT {
     //% block.loc.da="forbind til wifi. WiFi navn %ssid, password %pw"
     //% subcategory="Wifi"
     export function wifiConnect(ssid: string, pw: string) {
+        ssid = ssid.trim();
+        pw = pw.trim();
+        
+        Orbit_AT.start();
         if(!WiFi.connected() && !WiFi.connecting())
         {
             WiFi.connect(ssid, pw);
@@ -132,8 +142,9 @@ namespace Orbit_IoT {
         {
             if (Orbit_Format.IsCmdPacket("number", data)) {
                 let number = parseFloat(payload);
+                let from : number = Orbit_Format.GetSender(data);
                 num_rec.forEach(callback => {
-                    callback(number);
+                    callback(number, from);
                 });
             }
         }    

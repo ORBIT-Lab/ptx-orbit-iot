@@ -1,5 +1,7 @@
 namespace Orbit_AT {
     
+    const MaxQueueCount : number = 8;
+
     class Queue<T> {
         _store: T[] = [];
         count : number = 0; 
@@ -42,9 +44,11 @@ namespace Orbit_AT {
     class AtWatcher
     {
         match: string;
-        process: (data: string) => string;
+        process: (data: string) => void;
 
-        constructor(match: string, process: (data: string) => string) {
+        text: string;
+
+        constructor(match: string, process: (data: string) => void) {
             this.match = match; 
             this.process = process;
         }
@@ -53,20 +57,30 @@ namespace Orbit_AT {
     const at_line_delimiter : string = "\u000D\u000A"
     let cmd_queue : Queue<AtCmd> = new Queue<AtCmd>();
     let watchers: AtWatcher[] = [];
+    let started: boolean = false; 
 
     export function start()
     {
-        atCmdTask();
-        setupESP8266()
+        if(!started)
+        {
+            started = true;
+            atCmdTask();
+            setupESP8266()
+        }
     }
 
-    export function addWatcher(matchStr: string, callback: (data: string) => string)
+    export function addWatcher(matchStr: string, callback: (data: string) => void)
     {
         let val: AtWatcher = new AtWatcher(matchStr, callback);
         watchers.push(val);
     }
 
     export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
+        while(cmd_queue.count > MaxQueueCount)
+        {
+            control.waitForEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MICROBIT_EVT_ANY)
+        }
+        
         cmd_queue.push(new AtCmd(command+at_line_delimiter, ok_match, error_match, cmpCallback, errorCallback));
         processQueue("");
     }
@@ -79,9 +93,8 @@ namespace Orbit_AT {
 
     function setupESP8266() {
         sendAT("AT", "OK", "ERROR",empty_callback,empty_callback)
-        sendAT("AT+RESTORE", "OK", "ERROR",function()
+        sendAT("AT+RESTORE", "ready", "ERROR",function()
         {
-            basic.pause(1100);
             serial.readString(); //clear upstart info.
         }, empty_callback); // restore to factory settings
         sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode
@@ -91,6 +104,9 @@ namespace Orbit_AT {
     {
     }
 
+    const watcherEvt : number = 202;
+    let cmpWatchers : AtWatcher[] = [];
+
     function processWatchers(text: string)
     {
         for(let watcher of watchers)
@@ -98,7 +114,9 @@ namespace Orbit_AT {
             let index : number = text.indexOf(watcher.match);
             if (index !== -1)
             {
-                watcher.process(text); 
+                watcher.text = text;
+                cmpWatchers.push(watcher);
+                control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, watcherEvt, EventCreationMode.CreateAndFire);
             }
         }
     }
@@ -114,12 +132,17 @@ namespace Orbit_AT {
             let time_since_start = input.runningTime()-last_cmd_send;
             if(time_since_start > timeout_ms)
             {
-                current_cmd.onError();
+                doneCMD = current_cmd;
+                control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, errorEvt, EventCreationMode.CreateAndFire);
                 current_cmd = undefined;
                 processQueue("");
             }
         }
     }
+
+    const cmpEvt : number = 200;
+    const errorEvt : number = 201;
+    let doneCMD : AtCmd | undefined = undefined; 
 
     function processQueue(text: string)
     {
@@ -129,11 +152,11 @@ namespace Orbit_AT {
             let error = text.includes(current_cmd.error_match);
             if(sucsess || error)
             {
+                doneCMD = current_cmd;
                 if(sucsess)
-                    current_cmd.onCmp();
+                    control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, cmpEvt, EventCreationMode.CreateAndFire);
                 else
-                    current_cmd.onError();
-
+                    control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, errorEvt, EventCreationMode.CreateAndFire);
                 current_cmd = undefined;
                 text = "";
             }
@@ -154,11 +177,37 @@ namespace Orbit_AT {
         serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
         serial.setRxBufferSize(128);
         serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-            let recevice_text = serial.readUntil(serial.delimiters(Delimiters.NewLine));
-
-            processWatchers(recevice_text);
-            processQueue(recevice_text);
+            let recevice_text = serial.readString();
+            let data : string[] = recevice_text.split('\n');
+            for(let line of data)
+            {
+                processWatchers(line);
+                processQueue(line);
+            }
         });
+
+        control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, cmpEvt, function () {
+            if(doneCMD !== undefined)
+                doneCMD.onCmp();
+            doneCMD = undefined;
+        });
+
+        control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, errorEvt, function () {
+            if(doneCMD !== undefined)
+                doneCMD.onError();
+            doneCMD = undefined;
+        });
+
+        control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, watcherEvt, function () {
+            for(let watcher of cmpWatchers)
+            {
+                watcher.process(watcher.text);
+                watcher.text = "";
+            }
+            cmpWatchers = [];
+        });
+        
+
 
         control.inBackground(function () {
             while(true)

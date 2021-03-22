@@ -1,6 +1,7 @@
 namespace Orbit_AT {
     
     const MaxQueueCount : number = 8;
+    const ORBIT_EVENTS : number = 200;
 
     class Queue<T> {
         _store: T[] = [];
@@ -78,7 +79,7 @@ namespace Orbit_AT {
     export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
         while(cmd_queue.count > MaxQueueCount)
         {
-            control.waitForEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MICROBIT_EVT_ANY)
+            control.waitForEvent(ORBIT_EVENTS, EventBusValue.MICROBIT_EVT_ANY)
         }
         
         cmd_queue.push(new AtCmd(command+at_line_delimiter, ok_match, error_match, cmpCallback, errorCallback));
@@ -116,7 +117,7 @@ namespace Orbit_AT {
             {
                 watcher.text = text;
                 cmpWatchers.push(watcher);
-                control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, watcherEvt, EventCreationMode.CreateAndFire);
+                control.raiseEvent(ORBIT_EVENTS, watcherEvt, EventCreationMode.CreateAndFire);
             }
         }
     }
@@ -133,7 +134,7 @@ namespace Orbit_AT {
             if(time_since_start > timeout_ms)
             {
                 doneCMD = current_cmd;
-                control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, errorEvt, EventCreationMode.CreateAndFire);
+                control.raiseEvent(ORBIT_EVENTS, errorEvt, EventCreationMode.CreateAndFire);
                 current_cmd = undefined;
                 processQueue("");
             }
@@ -154,9 +155,9 @@ namespace Orbit_AT {
             {
                 doneCMD = current_cmd;
                 if(sucsess)
-                    control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, cmpEvt, EventCreationMode.CreateAndFire);
+                    control.raiseEvent(ORBIT_EVENTS, cmpEvt, EventCreationMode.CreateAndFire);
                 else
-                    control.raiseEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, errorEvt, EventCreationMode.CreateAndFire);
+                    control.raiseEvent(ORBIT_EVENTS, errorEvt, EventCreationMode.CreateAndFire);
                 current_cmd = undefined;
                 text = "";
             }
@@ -186,19 +187,19 @@ namespace Orbit_AT {
             }
         });
 
-        control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, cmpEvt, function () {
+        control.onEvent(ORBIT_EVENTS, cmpEvt, function () {
             if(doneCMD !== undefined)
                 doneCMD.onCmp();
             doneCMD = undefined;
         });
 
-        control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, errorEvt, function () {
+        control.onEvent(ORBIT_EVENTS, errorEvt, function () {
             if(doneCMD !== undefined)
                 doneCMD.onError();
             doneCMD = undefined;
         });
 
-        control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, watcherEvt, function () {
+        control.onEvent(ORBIT_EVENTS, watcherEvt, function () {
             for(let watcher of cmpWatchers)
             {
                 watcher.process(watcher.text);

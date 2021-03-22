@@ -40,7 +40,7 @@ namespace WiFi {
                 wifi_disconnect_callback();
                 wifi_connected = false;
             }
-            if(!reconnecting)
+            if(!reconnecting && !wifi_connecting)
                 wifiReconnect();
         });
     }

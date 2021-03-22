@@ -24,8 +24,11 @@ namespace Orbit_MQTT {
                 connect_callback();
         });
         Orbit_AT.addWatcher("+MQTTDISCONNECTED", function (data: string) {
-            mqtt_connected = false;
-            disconnect_callback();
+            if(mqtt_connected)
+            {
+                mqtt_connected = false;
+                disconnect_callback();
+            }
         });
         Orbit_AT.addWatcher("+MQTTSUBRECV", subscriptionCallback);
     }

@@ -62,6 +62,7 @@ namespace Orbit_MQTT {
             {
                 mqtt_connected = false;  
                 mqtt_connecting = false;
+                disconnect_callback();
             }
 
             let serial = control.deviceSerialNumber();

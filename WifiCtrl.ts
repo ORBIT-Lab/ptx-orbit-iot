@@ -56,6 +56,7 @@ namespace WiFi {
             },
                 function () {
                     wifi_connecting = false;
+                    wifi_disconnect_callback();
                 }
             );
         }

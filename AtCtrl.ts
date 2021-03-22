@@ -1,5 +1,5 @@
 namespace Orbit_AT {
-    
+    //Controlls the AT commands
     const MaxQueueCount : number = 8;
     const ORBIT_EVENTS : number = 100;
 

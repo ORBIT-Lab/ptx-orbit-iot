@@ -115,7 +115,6 @@ namespace Orbit_AT {
             let index : number = text.indexOf(watcher.match);
             if (index !== -1)
             {
-                led.toggle(0, 0);
                 watcher.text = text;
                 cmpWatchers.push(watcher);
                 control.raiseEvent(ORBIT_EVENTS, watcherEvt, EventCreationMode.CreateAndFire);

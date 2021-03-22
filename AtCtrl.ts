@@ -94,8 +94,9 @@ namespace Orbit_AT {
 
     function setupESP8266() {
         sendAT("AT", "OK", "ERROR",empty_callback,empty_callback)
-        sendAT("AT+RESTORE", "ready", "ERROR",function()
+        sendAT("AT+RESTORE", "OK", "ERROR",function()
         {
+            basic.pause(1500);
             serial.readString(); //clear upstart info.
         }, empty_callback); // restore to factory settings
         sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode

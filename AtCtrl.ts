@@ -1,7 +1,21 @@
 namespace Orbit_AT {
     
-    const MaxQueueCount : number = 8;
+    const MaxQueueCount : number = 20;
     const ORBIT_EVENTS : number = 100;
+    const WATCHER_EVENT : number = 202;
+    const TIMEOUT_MS: number = 15000;
+    const QUEUE_ITEM_CMP_EVENT : number = 201;
+
+    const LINE_DELIMITER: string = "\u000D\u000A"
+
+
+    enum ATStatus
+    {
+        PENDING_PROCESS,
+        PENDING_OK,
+        PENDING_ERROR,
+        DONE
+    }
 
     class Queue<T> {
         _store: T[] = [];
@@ -26,6 +40,8 @@ namespace Orbit_AT {
     class AtCmd
     {
         cmd: string;
+        status: ATStatus;
+
         ok_match: string;
         error_match: string;
 
@@ -34,6 +50,7 @@ namespace Orbit_AT {
 
         constructor(cmd: string,ok_match: string, error_match: string,
             cmp: () => void, error: () => void) {
+            this.status = ATStatus.PENDING_PROCESS;
             this.cmd = cmd;
             this.ok_match = ok_match;
             this.error_match = error_match;
@@ -47,18 +64,44 @@ namespace Orbit_AT {
         match: string;
         process: (data: string) => void;
 
-        text: string;
+        events: string[] = [];
 
         constructor(match: string, process: (data: string) => void) {
             this.match = match; 
             this.process = process;
         }
+
+        public checkFrame(frame:string) : boolean
+        {
+            if (frame.includes(this.match))
+            {
+                this.events.push(frame);
+                return true;
+            }
+            return false;
+        }
+
+        public invokeEvents()
+        {
+            for(let event of this.events)
+            {
+                this.process(event);
+            }
+            this.events = [];
+        }
+
     }
-    
-    const at_line_delimiter : string = "\u000D\u000A"
-    let cmd_queue : Queue<AtCmd> = new Queue<AtCmd>();
+
+
+    let current_cmd: AtCmd | undefined = undefined; 
+    let last_cmd_send : number = 0;
+
+    let cmd_queue       : Queue<AtCmd> = new Queue<AtCmd>();
+    let cmd_cmp_queue   : Queue<AtCmd> = new Queue<AtCmd>();
+
     let watchers: AtWatcher[] = [];
     let started: boolean = false; 
+
 
     export function start()
     {
@@ -82,68 +125,98 @@ namespace Orbit_AT {
             control.waitForEvent(ORBIT_EVENTS, EventBusValue.MICROBIT_EVT_ANY)
         }
         
-        cmd_queue.push(new AtCmd(command+at_line_delimiter, ok_match, error_match, cmpCallback, errorCallback));
-        processQueue("");
+        cmd_queue.push(new AtCmd(command+LINE_DELIMITER, ok_match, error_match, cmpCallback, errorCallback));
     }
 
     export function sendData(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
         cmd_queue.push(new AtCmd(command, ok_match, error_match, cmpCallback, errorCallback));
-        processQueue("");
     }
 
 
-    function setupESP8266() {
+    function setupESP8266() { 
+
+        let done : boolean = false; 
+
         sendAT("AT", "OK", "ERROR",empty_callback,empty_callback)
-        sendAT("AT+RESTORE", "ready", "ERROR",function()
+        sendAT("AT+RESTORE", "OK", "ERROR",function()
         {
-            serial.readString(); //clear upstart info.
-        }, empty_callback); // restore to factory settings
-        sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode
+            basic.pause(3000);
+            sendAT("AT+CWMODE=1", "OK", "ERROR", empty_callback, empty_callback); // set to STA mode
+            done = true; 
+        }, function (){ done = true;});
+        
+        while(!done)
+        {
+            basic.pause(100);
+        }
     }
 
     function empty_callback()
     {
     }
+    
+    let uart_rx : Queue<string> = new Queue<string>(); 
 
-    const watcherEvt : number = 202;
-    let cmpWatchers : AtWatcher[] = [];
+    function atCmdTask()
+    {
+
+        serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
+        serial.setRxBufferSize(128);
+        serial.readString(); //empty startup jitter. 
+
+        serial.onDataReceived(LINE_DELIMITER, function () {
+            uart_rx.push(serial.readUntil(LINE_DELIMITER));
+            led.toggle(0, 4);
+        });
+
+        control.inBackground(uartControlThread);
+
+        control.onEvent(ORBIT_EVENTS, QUEUE_ITEM_CMP_EVENT, function () {
+            
+            while(cmd_cmp_queue.count > 0)
+            {
+                let cmd_item : AtCmd = cmd_cmp_queue.pop(); 
+                if(cmd_item.status == ATStatus.PENDING_OK)
+                {
+                    cmd_item.onCmp();
+                }
+                else
+                {
+                    cmd_item.onError();
+                }
+            }
+        });
+
+        control.onEvent(ORBIT_EVENTS, WATCHER_EVENT, function () {
+            for(let watcher of watchers)
+            {
+                watcher.invokeEvents();
+            }
+            led.toggle(1, 4);
+        });
+    
+    }
+
+    
 
     function processWatchers(text: string)
     {
+        let watcherActivated : boolean = false; 
+
         for(let watcher of watchers)
         {
-            let index : number = text.indexOf(watcher.match);
-            if (index !== -1)
-            {
-                watcher.text = text;
-                cmpWatchers.push(watcher);
-                control.raiseEvent(ORBIT_EVENTS, watcherEvt, EventCreationMode.CreateAndFire);
-            }
+            if(watcher.checkFrame(text))
+                watcherActivated =  true;
         }
-    }
-
-    let current_cmd: AtCmd | undefined = undefined; 
-    let last_cmd_send : number = 0;
-    const timeout_ms: number = 15000;
-
-    function checkForEventTimeout()
-    {
-        if (current_cmd !== undefined)
+        led.toggle(3, 4);
+        if(watcherActivated)
         {
-            let time_since_start = input.runningTime()-last_cmd_send;
-            if(time_since_start > timeout_ms)
-            {
-                doneCMD = current_cmd;
-                control.raiseEvent(ORBIT_EVENTS, errorEvt, EventCreationMode.CreateAndFire);
-                current_cmd = undefined;
-                processQueue("");
-            }
+            led.toggle(4, 4);
+            control.raiseEvent(ORBIT_EVENTS, WATCHER_EVENT, EventCreationMode.CreateAndFire);
         }
+        
     }
 
-    const cmpEvt : number = 200;
-    const errorEvt : number = 201;
-    let doneCMD : AtCmd | undefined = undefined; 
 
     function processQueue(text: string)
     {
@@ -153,16 +226,16 @@ namespace Orbit_AT {
             let error = text.includes(current_cmd.error_match);
             if(sucsess || error)
             {
-                doneCMD = current_cmd;
-                if(sucsess)
-                    control.raiseEvent(ORBIT_EVENTS, cmpEvt, EventCreationMode.CreateAndFire);
-                else
-                    control.raiseEvent(ORBIT_EVENTS, errorEvt, EventCreationMode.CreateAndFire);
+                current_cmd.status = sucsess ? ATStatus.PENDING_OK : ATStatus.PENDING_ERROR;
+                cmd_cmp_queue.push(current_cmd);
                 current_cmd = undefined;
-                text = "";
+                control.raiseEvent(ORBIT_EVENTS, QUEUE_ITEM_CMP_EVENT, EventCreationMode.CreateAndFire);
             }
         }
+    }
 
+    function updateQueueAndTimeout()
+    {
         if (current_cmd === undefined) {
             current_cmd = cmd_queue.pop();
             if (current_cmd !== undefined)
@@ -171,56 +244,37 @@ namespace Orbit_AT {
                 last_cmd_send = input.runningTime();
             }
         }
+        else
+        {
+            let time_since_start = input.runningTime()-last_cmd_send;
+            if(time_since_start > TIMEOUT_MS)
+            {
+                current_cmd.status = ATStatus.PENDING_ERROR;
+                cmd_cmp_queue.push(current_cmd);
+                current_cmd = undefined;
+                control.raiseEvent(ORBIT_EVENTS, QUEUE_ITEM_CMP_EVENT, EventCreationMode.CreateAndFire);
+            }
+        }
     }
 
-    function atCmdTask()
+
+    function uartControlThread()
     {
-        serial.redirect(SerialPin.P8, SerialPin.P12, BaudRate.BaudRate115200);
-        serial.setRxBufferSize(128);
-        serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
-            let recevice_text = serial.readString();
-            let data : string[] = recevice_text.split('\n');
-            for(let line of data)
+        while(true)
+        {
+            while(uart_rx.count > 0)
             {
-                processWatchers(line);
-                processQueue(line);
+                let data_frame : string = uart_rx.pop();
+                processWatchers(data_frame);
+                processQueue(data_frame);
             }
-        });
 
-        control.onEvent(ORBIT_EVENTS, cmpEvt, function () {
-            if(doneCMD !== undefined)
-                doneCMD.onCmp();
-            doneCMD = undefined;
-        });
-
-        control.onEvent(ORBIT_EVENTS, errorEvt, function () {
-            if(doneCMD !== undefined)
-                doneCMD.onError();
-            doneCMD = undefined;
-        });
-
-        control.onEvent(ORBIT_EVENTS, watcherEvt, function () {
-            for(let watcher of cmpWatchers)
-            {
-                watcher.process(watcher.text);
-                watcher.text = "";
-            }
-            cmpWatchers = [];
-        });
-        
-
-
-        control.inBackground(function () {
-            while(true)
-            {
-                checkForEventTimeout();
-                basic.pause(2000);
-            }
-        });
-
+            updateQueueAndTimeout();
+            basic.pause(100);
+        }
     }
 
-    
-
-
+    function isEmpty( str : string) {
+        return (!str || str.length === 0 );
+    }
 }

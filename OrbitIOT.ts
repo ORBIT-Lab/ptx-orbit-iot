@@ -4,7 +4,9 @@ namespace Orbit_IoT {
     const wifi_pw :string  = "orbitlab"
     
     let institution_id = "";
-    let num_rec : {(number: number, from: number): void;}[] = [];
+
+    let mqtt_number_event_callback : (data : number, sender : number)=> void = function (d : number,s : number){};
+    let mqtt_text_event_callback :   (data : string, sender : number)=> void = function (d : string,s : number){};
 
 
     //% block="setup orbitLab cloud with Username %user and password %password and institution id %institution"  weight=90
@@ -57,14 +59,14 @@ namespace Orbit_IoT {
         sendMqttTo(packet, to);
     }
 
-    //% block="send text %text" weight=4
-    //% block.loc.da="send tekst %text"
+    //% block="send text %text to %to (0 is server)" weight=4
+    //% block.loc.da="send tekst %text til %to (0 er hjemmesiden)"
     //% subcategory="Orbit MQTT"
-    export function sendTextCmdMQTT(text: string)
+    export function sendTextCmdMQTT(text: string, to: number)
     {
         text = text.trim();
         let packet = Orbit_Format.CreatePacket("text",text, institution_id);
-        sendMqttTo(packet, 0);
+        sendMqttTo(packet, to);
     }
 
     function sendMqttTo(packet: string, to: number) {
@@ -77,7 +79,15 @@ namespace Orbit_IoT {
     //% block.loc.da="Nummer modtaget"
     //% subcategory="Orbit MQTT"
     export function addMQTTNumHandler(handler: (number: number, from: number) => void) {
-        num_rec.push(handler);
+        mqtt_number_event_callback = handler;
+        Orbit_MQTT.setDataCallback(mqtt_packet_callback);
+    }
+
+    //% block="Received Text" weight=3
+    //% block.loc.da="Tekst modtaget"
+    //% subcategory="Orbit MQTT"
+    export function addMQTTTextHandler(handler: (text: string, from: number) => void) {
+        mqtt_text_event_callback = handler;
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }
 
@@ -138,16 +148,17 @@ namespace Orbit_IoT {
 
     function mqtt_packet_callback(data:string) {
         let payload = Orbit_Format.GetPayload(data);
+        let from : number = Orbit_Format.GetSender(data);
         if (payload !== "")
         {
             if (Orbit_Format.IsCmdPacket("number", data)) {
                 let number = parseFloat(payload);
-                let from : number = Orbit_Format.GetSender(data);
-                num_rec.forEach(callback => {
-                    callback(number, from);
-                });
+                mqtt_number_event_callback(number, from);
+            }
+            else if (Orbit_Format.IsCmdPacket("text", data)) {
+                mqtt_text_event_callback(payload, from);
             }
         }    
     }
-    
+
 }

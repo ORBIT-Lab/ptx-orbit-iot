@@ -132,7 +132,6 @@ namespace Orbit_AT {
         cmd_queue.push(new AtCmd(command, ok_match, error_match, cmpCallback, errorCallback));
     }
 
-
     function setupESP8266() { 
 
         let done : boolean = false; 
@@ -165,8 +164,10 @@ namespace Orbit_AT {
         serial.readString(); //empty startup jitter. 
 
         serial.onDataReceived(LINE_DELIMITER, function () {
-            uart_rx.push(serial.readUntil(LINE_DELIMITER));
-            led.toggle(0, 4);
+            let raw_uart_frame : string = serial.readUntil(LINE_DELIMITER);
+            serial.readString(); // clear buffer, if any more data. For some reason this is important for stability. 
+
+            uart_rx.push(raw_uart_frame);
         });
 
         control.inBackground(uartControlThread);
@@ -192,7 +193,6 @@ namespace Orbit_AT {
             {
                 watcher.invokeEvents();
             }
-            led.toggle(1, 4);
         });
     
     }
@@ -208,10 +208,9 @@ namespace Orbit_AT {
             if(watcher.checkFrame(text))
                 watcherActivated =  true;
         }
-        led.toggle(3, 4);
+        
         if(watcherActivated)
         {
-            led.toggle(4, 4);
             control.raiseEvent(ORBIT_EVENTS, WATCHER_EVENT, EventCreationMode.CreateAndFire);
         }
         

@@ -3,7 +3,7 @@ namespace Orbit_AT {
     const MaxQueueCount : number = 20;
     const ORBIT_EVENTS : number = 100;
     const WATCHER_EVENT : number = 202;
-    const TIMEOUT_MS: number = 15000;
+    const TIMEOUT_MS: number = 1000;
     const QUEUE_ITEM_CMP_EVENT : number = 201;
 
     const LINE_DELIMITER: string = "\u000D\u000A"
@@ -42,20 +42,25 @@ namespace Orbit_AT {
         cmd: string;
         status: ATStatus;
 
+        timeout: number; 
+
         ok_match: string;
         error_match: string;
 
         onError: () => void;
         onCmp: () => void;
 
+        
+
         constructor(cmd: string,ok_match: string, error_match: string,
-            cmp: () => void, error: () => void) {
+            cmp: () => void, error: () => void, timeout : number) {
             this.status = ATStatus.PENDING_PROCESS;
             this.cmd = cmd;
             this.ok_match = ok_match;
             this.error_match = error_match;
             this.onCmp = cmp; 
             this.onError = error;
+            this.timeout = timeout;
         }
     }
 
@@ -119,17 +124,20 @@ namespace Orbit_AT {
         watchers.push(val);
     }
 
-    export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
+    export function sendAT(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void, timeout: number = 0)  {
+        if(timeout == 0)
+            timeout = TIMEOUT_MS;
+        
         while(cmd_queue.count > MaxQueueCount)
         {
             control.waitForEvent(ORBIT_EVENTS, EventBusValue.MICROBIT_EVT_ANY)
         }
         
-        cmd_queue.push(new AtCmd(command+LINE_DELIMITER, ok_match, error_match, cmpCallback, errorCallback));
+        cmd_queue.push(new AtCmd(command+LINE_DELIMITER, ok_match, error_match, cmpCallback, errorCallback, timeout));
     }
 
     export function sendData(command: string, ok_match: string, error_match : string, cmpCallback: ()=>void, errorCallback: ()=>void)  {
-        cmd_queue.push(new AtCmd(command, ok_match, error_match, cmpCallback, errorCallback));
+        cmd_queue.push(new AtCmd(command, ok_match, error_match, cmpCallback, errorCallback, TIMEOUT_MS));
     }
 
     function setupESP8266() { 
@@ -246,7 +254,7 @@ namespace Orbit_AT {
         else
         {
             let time_since_start = input.runningTime()-last_cmd_send;
-            if(time_since_start > TIMEOUT_MS)
+            if(time_since_start > current_cmd.timeout)
             {
                 current_cmd.status = ATStatus.PENDING_ERROR;
                 cmd_cmp_queue.push(current_cmd);

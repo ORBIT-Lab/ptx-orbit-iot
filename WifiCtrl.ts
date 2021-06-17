@@ -21,7 +21,7 @@ namespace WiFi {
             Orbit_AT.sendAT("AT+CWJAP=\"" + wifi_ssid + "\",\"" + wifi_pw + "\"", "OK", "ERROR", function () {
                 wifi_connecting = false;
                 reconnecting = false; 
-            },wifiReconnect);
+            },wifiReconnect, 15000);
         }
     }
 
@@ -58,7 +58,7 @@ namespace WiFi {
                     wifi_connecting = false;
                     wifi_disconnect_callback();
                 }
-            );
+            , 15000);
         }
     }
 

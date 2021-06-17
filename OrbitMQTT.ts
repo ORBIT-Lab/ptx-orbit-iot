@@ -78,7 +78,7 @@ namespace Orbit_MQTT {
                     mqtt_connected = true; 
                     mqtt_connecting = false;
                     connect_callback();
-                },mqttConnectionError);
+                },mqttConnectionError, 15000);
             }, mqttConnectionError);
         }
     }

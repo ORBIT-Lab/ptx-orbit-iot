@@ -33,7 +33,7 @@ namespace Orbit_MQTT {
         Orbit_AT.addWatcher("+MQTTSUBRECV", subscriptionCallback);
     }
 
-    function addSubscriber(topic: string)
+   export function addSubscriber(topic: string)
     {
         function empty(){}
         Orbit_AT.sendAT("AT+MQTTSUB=0,\""+topic+"\",1", "OK", "ERROR",empty,empty);

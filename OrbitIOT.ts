@@ -9,66 +9,50 @@ namespace Orbit_IoT {
     let mqtt_text_event_callback :   (data : string, sender : number)=> void = function (d : string,s : number){};
     let topics = "";
     let root = "";
-    //% block="send a number %value to  roots %root and topic %topics" weight=90
-    //% block.loc.da="send nummer %value to  root %root and topic %topics"
+    //% block="send a number %value to topic %topics" weight=90
+    //% block.loc.da="send nummer %value to topic %topics"
     //% subcategory="Orbit MQTT"
-    export function sendNumberCmdMQTTF(value: number, root: string, topics: string) {
+    export function sendNumberCmdMQTTTopic(value: number, topics: string) {
         let packet = Orbit_Format.CreatePacket("number", value.toString(), institution_id);
-        sendMqttToTopic(packet,root,topics);
+        sendMqttToTopic(packet, topics);
     }
-    function sendMqttToTopic(packet: string,root: string, topics: string) {
-       
-        //let topic: string = "ceed/microbit/topic/" + topicF;
-        let serial = control.deviceSerialNumber();
-        if (root === "") {
 
-            root = "data";
-            topics = serial.toString();
+    //% block="send text %text to Topic %topic " weight=4
+    //% block.loc.da="send tekst %text til Topic %topic"
+    //% subcategory="Orbit MQTT"
+    export function sendTextCmdMQTTTopic(text: string, topics: string) {
+        text = text.trim();
+        let packet = Orbit_Format.CreatePacket("text", text, institution_id);
+        sendMqttToTopic(packet, topics);
+    }
+    function sendMqttToTopic(packet: string, topics: string) {
+
+        if (topics === "") {
+            topics = "testTopic";
 
         } else {
-            root = root;
-
             topics = topics
 
 
         }
-        let topic: string = "ceed/microbit/" + root +"/"+ topics;
-        
+        topics = topics
+        let topic: string = "ceed/microbit/topic/" + topics;
+
         Orbit_MQTT.send(packet, topic);
     }
-    
-    //% block="setup orbitLab2 cloud with Username %user and password %password and institution id %institution rootname %root and the name of nodes %topics"  weight=90
-    //% block.loc.da="Forbind til orbitLab cloud med brugernavn %user og kode %password og skole id %institution"
+
+
+    //% block="lyt på Topic%topic" weight=90
+    //% block.loc.da="lyt på topic %topics"
     //% subcategory="Orbit MQTT"
-    export function setupForMQTTCloud2(user: string, password: string, institution: string, root: string, topics: string) {
-        user = user.trim();
-        password = password.trim();
-        institution = institution.trim();
-
-        Orbit_AT.start();
-        if (!WiFi.connected() && !WiFi.connecting())
-            WiFi.connect(wifi_ssid, wifi_pw);
-        institution_id = institution;
-        let serial = control.deviceSerialNumber();
-        if(root==""){
-            
-            root="topic";
-            topics = "testTopic"
-           
-        }else{
-         root=root;
-         
-            topics = serial.toString();
-         
-
-        }
-        let topic: string = "ceed/microbit/" + root + "/" + topics;
-        
-
-        Orbit_MQTT.connect(topic, user, password);
-        Orbit_MQTT.waitForConnection();
+    export function addSubscribersToTopic(topics: string) {
+        let topic: string = "ceed/microbit/topic/" + topics;
+        Orbit_MQTT.addSubscriber(topic)
     }
 
+    
+   
+   
    
     //% block="setup orbitLab cloud with Username %user and password %password and institution id %institution"  weight=90
     //% block.loc.da="Forbind til orbitLab cloud med brugernavn %user og kode %password og skole id %institution"

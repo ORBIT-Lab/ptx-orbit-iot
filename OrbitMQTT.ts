@@ -38,11 +38,24 @@ namespace Orbit_MQTT {
         Orbit_AT.sendAT("AT+MQTTSUB=0,\"" + topic + "\",1", "OK", "ERROR", empty, empty);
     }
 
+
+    function getTopic(data: string) : string
+    {
+        let searchTerm = '/topic/'
+        if(data.includes(searchTerm))
+        {
+            let startIndex = data.indexOf(searchTerm) + searchTerm.length;
+            let endIndex = data.indexOf('"', startIndex);
+            return data.substr(startIndex, endIndex-startIndex);
+        }
+        return "none";
+    }
+
     function subscriptionCallback(data: string) {
         let jsonStart = data.indexOf("{");
         if (jsonStart !== -1) {
             let packet: string = data.substr(jsonStart);
-            rec_callback(packet, "topic to be found");
+            rec_callback(packet, getTopic(data));
         }
     }
 

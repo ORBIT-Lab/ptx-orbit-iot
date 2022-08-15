@@ -13,6 +13,7 @@
         "OrbitTCP.ts",
         "OrbitMQTT.ts",
         "OrbitFormat.ts",
+        "Crypto.ts",
         "_locales/da/Orbit_IoT-strings.json"
     ],
     "testFiles": [
@@ -20,7 +21,7 @@
     ],
     "public": true,
     "targetVersions": {
-        "target": "4.0.18",
+        "target": "5.0.12",
         "targetId": "microbit"
     },
     "supportedTargets": [

@@ -9,16 +9,16 @@ namespace Orbit_IoT {
     let mqtt_text_event_callback: (data: string, sender: number, topic: string) => void = function (d: string, s: number) { };
     let topics = "";
     let root = "";
-    //% block="send a number %value to topic %topics" weight=90
-    //% block.loc.da="send nummer %value to topic %topics"
+    //% block="send a number %value to Channel %topics" weight=90
+    //% block.loc.da="send nummer %value to Kanal %topics"
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTTTopic(value: number, topics: string) {
         let packet = Orbit_Format.CreatePacket("number", value.toString(), institution_id);
         sendMqttToTopic(packet, topics);
     }
 
-    //% block="send text %text to Topic %topic " weight=4
-    //% block.loc.da="send tekst %text til Topic %topic"
+    //% block="send text %text to Channel %topic " weight=4
+    //% block.loc.da="send tekst %text til Kanal %topic"
     //% subcategory="Orbit MQTT"
     export function sendTextCmdMQTTTopic(text: string, topics: string) {
         text = text.trim();
@@ -42,8 +42,8 @@ namespace Orbit_IoT {
     }
 
 
-    //% block="lyt på Topic%topic" weight=90
-    //% block.loc.da="lyt på topic %topics"
+    //% block="lyt på Channel%topic" weight=90
+    //% block.loc.da="lyt på Kanal %topics"
     //% subcategory="Orbit MQTT"
     export function addSubscribersToTopic(topics: string) {
         let topic: string = "ceed/microbit/topic/" + topics;
@@ -54,8 +54,8 @@ namespace Orbit_IoT {
 
 
 
-    //% block="setup orbitLab cloud with Username %user and password %password and institution id %institution"  weight=90
-    //% block.loc.da="Forbind til orbitLab cloud med brugernavn %user og kode %password og skole id %institution"
+    //% block="Setup ORBIT Cloud with Username %user and password %password and institution id %institution"  weight=90
+    //% block.loc.da="Forbind til ORBIT Cloud med brugernavn %user og kode %password og skole id %institution"
     //% subcategory="Orbit MQTT"
     export function setupForMQTTCloud(user: string, password: string, institution: string) {
         user = user.trim();
@@ -72,8 +72,8 @@ namespace Orbit_IoT {
         Orbit_MQTT.waitForConnection();
     }
 
-    //% block="cloud connected %state" weight=70
-    //% block.loc.da="forbundet til cloud %state"
+    //% block="Connected to Cloud %state" weight=70
+    //% block.loc.da="Forbundet til Cloud %state"
     //% subcategory="Orbit MQTT"
     export function cloudStateMQTT(state: boolean): boolean {
         if (Orbit_MQTT.connected() == state) {
@@ -84,8 +84,8 @@ namespace Orbit_IoT {
         }
     }
 
-    //% block="send group name %name to server" weight=5
-    //% block.loc.da="send gruppe navn %name"
+    //% block="Send Micro:bit name %name to server" weight=5
+    //% block.loc.da="Send Micro:bit navn %name"
     //% subcategory="Orbit MQTT"
     export function sendNameCmdMQTT(name: string) {
         name = name.trim();

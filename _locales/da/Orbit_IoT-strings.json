@@ -6,7 +6,7 @@
     "Orbit_IoT.sendTextCmdTCP|block": "send tekst %text",
     "Orbit_IoT.setupForMQTTCloud|block": "start orbitlab cloud med bruger %user og kode %password og skole id %institution",
     "Orbit_IoT.cloudStateMQTT|block": "cloud forbundet %state",
-    "Orbit_IoT.sendNameCmdMQTT|block": "send gruppe navn %name til serveren",
+    "Orbit_IoT.sendNameCmdMQTT|block": "Send Micro:bit navn %name",
     "Orbit_IoT.sendNumberCmdMQTT|block": "send nummer %value til %to (0 er serveren)",
     "Orbit_IoT.sendTextCmdMQTT|block": "send tekst %text til %to (0 er serveren)",
     "Orbit_IoT.addMQTTNumHandler|block": "nummer modtaget",

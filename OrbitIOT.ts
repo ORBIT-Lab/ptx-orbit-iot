@@ -9,7 +9,7 @@ namespace Orbit_IoT {
     let mqtt_text_event_callback: (data: string, sender: number, topic: string) => void = function (d: string, s: number) { };
     let topics = "";
     let root = "";
-    //% block="send a number %value to Channel %topics" weight=90
+    //% block="send a number %value to Channel %topics" weight=3
     //% block.loc.da="send nummer %value to Kanal %topics"
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTTTopic(value: number, topics: string) {
@@ -17,7 +17,7 @@ namespace Orbit_IoT {
         sendMqttToTopic(packet, topics);
     }
 
-    //% block="send text %text to Channel %topic " weight=4
+    //% block="send text %text to Channel %topic " weight=3
     //% block.loc.da="send tekst %text til Kanal %topic"
     //% subcategory="Orbit MQTT"
     export function sendTextCmdMQTTTopic(text: string, topics: string) {
@@ -42,7 +42,7 @@ namespace Orbit_IoT {
     }
 
 
-    //% block="lyt på Channel%topic" weight=90
+    //% block="lyt på Channel%topic" weight=3
     //% block.loc.da="lyt på Kanal %topics"
     //% subcategory="Orbit MQTT"
     export function addSubscribersToTopic(topics: string) {
@@ -72,7 +72,7 @@ namespace Orbit_IoT {
         Orbit_MQTT.waitForConnection();
     }
 
-    //% block="Connected to Cloud %state" weight=70
+    //% block="Connected to Cloud %state" weight=1
     //% block.loc.da="Forbundet til Cloud %state"
     //% subcategory="Orbit MQTT"
     export function cloudStateMQTT(state: boolean): boolean {
@@ -84,7 +84,7 @@ namespace Orbit_IoT {
         }
     }
 
-    //% block="Send Micro:bit name %name to server" weight=5
+    //% block="Send Micro:bit name %name to server" weight=3
     //% block.loc.da="Send Micro:bit navn %name"
     //% subcategory="Orbit MQTT"
     export function sendNameCmdMQTT(name: string) {
@@ -94,7 +94,7 @@ namespace Orbit_IoT {
     }
 
 
-    //% block="send a number %value to %to (0 is server)" weight=4
+    //% block="send a number %value to %to (0 is server)" weight=0
     //% block.loc.da="send nummer %value til %to (0 er hjemmesiden)"
     //% subcategory="Orbit MQTT"
     export function sendNumberCmdMQTT(value: number, to: number) {
@@ -102,7 +102,7 @@ namespace Orbit_IoT {
         sendMqttTo(packet, to);
     }
 
-    //% block="send text %text to %to (0 is server)" weight=4
+    //% block="send text %text to %to (0 is server)" weight=0
     //% block.loc.da="send tekst %text til %to (0 er hjemmesiden)"
     //% subcategory="Orbit MQTT"
     export function sendTextCmdMQTT(text: string, to: number) {
@@ -117,7 +117,7 @@ namespace Orbit_IoT {
     }
 
 
-    //% block="Received Number" weight=3
+    //% block="Received Number" weight=2
     //% block.loc.da="Nummer modtaget"
     //% subcategory="Orbit MQTT"
     export function addMQTTNumHandler(handler: (number: number, from: number, topic: string) => void) {
@@ -125,7 +125,7 @@ namespace Orbit_IoT {
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }
 
-    //% block="Received Text" weight=3
+    //% block="Received Text" weight=2
     //% block.loc.da="Tekst modtaget"
     //% subcategory="Orbit MQTT"
     export function addMQTTTextHandler(handler: (text: string, from: number, topic: string) => void) {
@@ -133,14 +133,14 @@ namespace Orbit_IoT {
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }
 
-    //% block="MQTT Connected" weight=3
+    //% block="MQTT Connected" weight=1
     //% block.loc.da="cloud forbundet"
     //% subcategory="Orbit MQTT"
     export function mqttConnected(handler: () => void) {
         Orbit_MQTT.setConnectCallback(handler);
     }
 
-    //% block="MQTT Disconnected" weight=3
+    //% block="MQTT Disconnected" weight=1
     //% block.loc.da="cloud mistet forbindelsen"
     //% subcategory="Orbit MQTT"
     export function mqttDisconnected(handler: () => void) {

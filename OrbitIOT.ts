@@ -42,7 +42,7 @@ namespace Orbit_IoT {
     }
 
 
-    //% block="lyt på Channel%topic" weight=3
+    //% block="listen on Channel%topic" weight=3
     //% block.loc.da="lyt på Kanal %topics"
     //% subcategory="Orbit MQTT"
     export function addSubscribersToTopic(topics: string) {

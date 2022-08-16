@@ -4,8 +4,8 @@ namespace Orbit_IoT {
     const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 
-    //% block="Encrypt %data with cesar code %skip" weight=4
-    //% block.loc.da="Krypter %data med cesar code %skip"
+    //% block="Encrypt %data with cesar shift %skip" weight=4
+    //% block.loc.da="Krypter %data med cæsar skift %skip"
     //% subcategory="Crypto"
     export function encrypt(data: string, skip: number) : string  {
         let ret : string = ''
@@ -20,8 +20,8 @@ namespace Orbit_IoT {
         return ret
     }
 
-    //% block="Decrypt %data with cesar code %skip" weight=5
-    //% block.loc.da="Dekrypter %data med cesar code %skip"
+    //% block="Decrypt %data with cesar shift %skip" weight=5
+    //% block.loc.da="Dekrypter %data med cæsar skift %skip"
     //% subcategory="Crypto"
     export function decrypt(data: string, skip: number): string {
         let ret: string = ''

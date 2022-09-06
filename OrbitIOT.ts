@@ -84,28 +84,22 @@ namespace Orbit_IoT {
         }
     }
 
-    //% block="Send Micro:bit name %name to server" weight=3
-    //% block.loc.da="Send Micro:bit navn %name"
-    //% subcategory="Orbit MQTT"
-    export function sendNameCmdMQTT(name: string) {
+    /* removed as a block */
+    function sendNameCmdMQTT(name: string) {
         name = name.trim();
         let packet = Orbit_Format.CreatePacket("name", name, institution_id);
         sendMqttTo(packet, 0);
     }
 
 
-    //% block="send a number %value to %to (0 is server)" weight=0
-    //% block.loc.da="send nummer %value til %to (0 er hjemmesiden)"
-    //% subcategory="Orbit MQTT"
-    export function sendNumberCmdMQTT(value: number, to: number) {
+    /* removed as block */
+    function sendNumberCmdMQTT(value: number, to: number) {
         let packet = Orbit_Format.CreatePacket("number", value.toString(), institution_id);
         sendMqttTo(packet, to);
     }
 
-    //% block="send text %text to %to (0 is server)" weight=0
-    //% block.loc.da="send tekst %text til %to (0 er hjemmesiden)"
-    //% subcategory="Orbit MQTT"
-    export function sendTextCmdMQTT(text: string, to: number) {
+    /* removed as block */
+    function sendTextCmdMQTT(text: string, to: number) {
         text = text.trim();
         let packet = Orbit_Format.CreatePacket("text", text, institution_id);
         sendMqttTo(packet, to);

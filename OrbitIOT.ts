@@ -114,7 +114,7 @@ namespace Orbit_IoT {
     //% block="Received Number" weight=2
     //% block.loc.da="Nummer modtaget"
     //% subcategory="Orbit MQTT"
-    export function addMQTTNumHandler(handler: (number: number, from: number, topic: string) => void) {
+    export function addMQTTNumHandler(handler: (number: number, from: number, channel: string) => void) {
         mqtt_number_event_callback = handler;
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }
@@ -122,7 +122,7 @@ namespace Orbit_IoT {
     //% block="Received Text" weight=2
     //% block.loc.da="Tekst modtaget"
     //% subcategory="Orbit MQTT"
-    export function addMQTTTextHandler(handler: (text: string, from: number, topic: string) => void) {
+    export function addMQTTTextHandler(handler: (text: string, from: number, channel: string) => void) {
         mqtt_text_event_callback = handler;
         Orbit_MQTT.setDataCallback(mqtt_packet_callback);
     }

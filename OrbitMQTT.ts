@@ -1,7 +1,7 @@
 
 namespace Orbit_MQTT {
 
-    const endpoint: string = "35.188.131.9"
+    const endpoint: string = "microbit.orbitweb.dk"
     const port: string = "8883"
 
     let mqtt_connected: boolean = false
